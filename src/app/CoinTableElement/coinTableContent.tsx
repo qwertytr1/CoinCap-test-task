@@ -10,7 +10,6 @@ const { Text } = Typography;
 interface CoinTableContentProps {
     coins: CurrencyEntity[];
     onSelectCoin: (coinId: string) => void;
-    pagination?: { current: number; pageSize: number };
 
   }
 
