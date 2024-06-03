@@ -1,6 +1,5 @@
 import React from 'react';
-import CoinTable from './app/coinTable'; // Assuming CoinTable is the main component of your app
-
+import CoinTable from './app/coinTable';
 const App: React.FC = () => {
   return (
     <div className="App">
@@ -9,4 +8,4 @@ const App: React.FC = () => {
   );
 };
 
-export default App; // Export the App component
+export default App;
