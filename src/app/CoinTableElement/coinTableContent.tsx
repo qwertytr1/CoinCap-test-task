@@ -11,21 +11,15 @@ interface CoinTableContentProps {
     coins: CurrencyEntity[];
     onSelectCoin: (coinId: string) => void;
     pagination?: { current: number; pageSize: number };
-    handleTableChange?: (
-      pagination: TablePaginationConfig,
-      filters: Record<string, FilterValue | null>,
-      sorter: SorterResult<CurrencyEntity> | SorterResult<CurrencyEntity>[],
-      extra: TableCurrentDataSource<CurrencyEntity>
-    ) => void;
+
   }
 
-const CoinTableContent: React.FC<CoinTableContentProps> = ({ coins, pagination, handleTableChange, onSelectCoin }) => {
+const CoinTableContent: React.FC<CoinTableContentProps> = ({ coins,onSelectCoin }) => {
   return (
     <Table
       dataSource={coins}
       rowKey="id"
-      pagination={pagination}
-      onChange={handleTableChange}
+
       onRow={(record) => ({
         onClick: () => onSelectCoin(record.id),
       })}
