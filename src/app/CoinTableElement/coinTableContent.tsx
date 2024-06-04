@@ -10,15 +10,20 @@ const { Text } = Typography;
 interface CoinTableContentProps {
   coins: CurrencyEntity[];
   onSelectCoin: (coinId: string) => void;
-  onAddToPortfolio: () => void;
-  onOpenAddCoinsModal: () => void; // Add this line to include the missing prop
+  onAddToPortfolio: (coin: CurrencyEntity) => void;
+  onOpenAddCoinsModal: () => void;
+  onOpenPortfolio: () => void;
 }
 
-const CoinTableContent: React.FC<CoinTableContentProps> = ({ coins, onSelectCoin, onAddToPortfolio, onOpenAddCoinsModal }) => {
+const CoinTableContent: React.FC<CoinTableContentProps> = ({ coins, onSelectCoin, onAddToPortfolio, onOpenAddCoinsModal, onOpenPortfolio }) => {
+  // Create a unique list of coins
+  const uniqueCoins = Array.from(new Set(coins.map(coin => coin.id)))
+    .map(id => coins.find(coin => coin.id === id) as CurrencyEntity);
+
   return (
     <div>
       <Table
-        dataSource={coins}
+        dataSource={uniqueCoins}
         rowKey="id"
         onRow={(record) => ({
           onClick: () => onSelectCoin(record.id),
@@ -36,46 +41,48 @@ const CoinTableContent: React.FC<CoinTableContentProps> = ({ coins, onSelectCoin
             </div>
           )}
         />
-      <Column
-        title="Логотип монеты"
-        dataIndex="symbol"
-        key="logo"
-        render={symbol => (
-          <img width={50} src={`https://assets.coincap.io/assets/icons/${symbol.toLowerCase()}@2x.png`} alt="Логотип" />
-        )}
-      />
-      <Column
-        title="Цена в USD"
-        dataIndex="priceUsd"
-        key="priceUsd"
-        render={(value: string) => `$${formatValue(value)}`}
-        sorter
-      />
-      <Column
-        title="Рыночная капитализация в USD"
-        dataIndex="marketCapUsd"
-        key="marketCapUsd"
-        render={(value: string) => `$${formatValue(value)}`}
-        sorter
-      />
-      <Column
-        title="Изменение за 24 часа (%)"
-        dataIndex="changePercent24Hr"
-        key="changePercent24Hr"
-        render={(value: string) => `${Number(value).toFixed(2)}%`}
-        sorter
-      />
-
-<Column
-  title="Добавить в портфель"
-  key="add"
-  render={(record: CurrencyEntity) => (
-    <PortfolioButton cryptoRates={coins} onAddToPortfolio={() => onAddToPortfolio()} onOpenAddCoinsModal={onOpenAddCoinsModal} />
-  )}
-/>
-
-
-  </Table>
+        <Column
+          title="Логотип монеты"
+          dataIndex="symbol"
+          key="logo"
+          render={symbol => (
+            <img width={50} src={`https://assets.coincap.io/assets/icons/${symbol.toLowerCase()}@2x.png`} alt="Логотип" />
+          )}
+        />
+        <Column
+          title="Цена в USD"
+          dataIndex="priceUsd"
+          key="priceUsd"
+          render={(value: string) => `$${formatValue(value)}`}
+          sorter
+        />
+        <Column
+          title="Рыночная капитализация в USD"
+          dataIndex="marketCapUsd"
+          key="marketCapUsd"
+          render={(value: string) => `$${formatValue(value)}`}
+          sorter
+        />
+        <Column
+          title="Изменение за 24 часа (%)"
+          dataIndex="changePercent24Hr"
+          key="changePercent24Hr"
+          render={(value: string) => `${Number(value).toFixed(2)}%`}
+          sorter
+        />
+        <Column
+          title="Действие"
+          key="action"
+          render={(record: CurrencyEntity) => (
+            <PortfolioButton
+              cryptoRates={[]} // or undefined
+              onOpenAddCoinsModal={onOpenAddCoinsModal}
+              onAddToPortfolio={() => onAddToPortfolio(record)} // Updated
+              onOpenPortfolio={onOpenPortfolio}
+            />
+          )}
+        />
+      </Table>
     </div>
   );
 };

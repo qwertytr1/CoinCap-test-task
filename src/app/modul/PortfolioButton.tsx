@@ -4,14 +4,16 @@ import { CurrencyEntity } from '../interfaces';
 
 interface PortfolioButtonProps {
   cryptoRates: CurrencyEntity[];
-  onAddToPortfolio: (coinId: string) => void;
-  onOpenAddCoinsModal: () => void; // Добавляем onOpenAddCoinsModal в пропсы
+  onOpenAddCoinsModal: () => void;
+  onAddToPortfolio: (coin: CurrencyEntity) => void;
+  onOpenPortfolio: () => void;
 }
 
-const PortfolioButton: React.FC<PortfolioButtonProps> = ({ cryptoRates, onAddToPortfolio, onOpenAddCoinsModal }) => {
+const PortfolioButton: React.FC<PortfolioButtonProps> = ({ cryptoRates, onOpenAddCoinsModal, onAddToPortfolio, onOpenPortfolio }) => {
   return (
     <div>
-      <Button onClick={onOpenAddCoinsModal}>Добавить в портфель</Button>
+      <Button onClick={onOpenPortfolio}>Открыть портфель</Button>
+      <Button onClick={onOpenAddCoinsModal}>Добавить монету</Button>
     </div>
   );
 };

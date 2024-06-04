@@ -1,5 +1,5 @@
-import { Button, Modal } from 'antd';
 import React from 'react';
+import { Button, Table, Modal, Typography } from 'antd'; // Импорт Typography из Ant Design
 import { CurrencyEntity } from '../interfaces';
 
 interface PortfolioModalProps {
@@ -7,16 +7,38 @@ interface PortfolioModalProps {
   onClose: () => void;
   portfolio: CurrencyEntity[];
   onDelete: (id: string) => void;
-  cryptoRates: CurrencyEntity[];
-  onPortfolioUpdate: (updatedPortfolio: CurrencyEntity[]) => void; // Добавляем новый колбэк для обновления портфолио
 }
 
-const PortfolioModal: React.FC<PortfolioModalProps> = ({ visible, onClose, portfolio, onDelete, cryptoRates, onPortfolioUpdate }) => {
-  const handleDelete = (id: string) => {
-    onDelete(id);
-    const updatedPortfolio = portfolio.filter(coin => coin.id !== id);
-    onPortfolioUpdate(updatedPortfolio); // Вызываем колбэк для обновления портфолио
-  };
+const { Text } = Typography; // Деструктурируем Text из Typography
+
+const PortfolioModal: React.FC<PortfolioModalProps> = ({ visible, onClose, portfolio, onDelete }) => {
+  // Функция для вычисления общей суммы портфеля
+  const totalPortfolioValue = portfolio.reduce((acc, coin) => acc + parseFloat(coin.priceUsd), 0);
+
+  const columns = [
+    {
+      title: 'Название',
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: 'Символ',
+      dataIndex: 'symbol',
+      key: 'symbol',
+    },
+    {
+      title: 'Цена в USD',
+      dataIndex: 'priceUsd',
+      key: 'priceUsd',
+    },
+    {
+      title: 'Действие',
+      key: 'action',
+      render: (record: CurrencyEntity) => (
+        <Button type="link" onClick={() => onDelete(record.id)}>Удалить</Button>
+      ),
+    },
+  ];
 
   return (
     <Modal
@@ -24,19 +46,19 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ visible, onClose, portf
       visible={visible}
       onCancel={onClose}
       footer={[
-        <Button key="close" onClick={onClose}>
-          Закрыть
-        </Button>
+        <Button key="close" onClick={onClose}>Закрыть</Button>,
       ]}
+      width={800} // Установка ширины модального окна
     >
-      <ul>
-        {portfolio.map((coin) => (
-          <li key={coin.id}>
-            {coin.name} ({coin.symbol}) - {coin.priceUsd} USD
-            <Button type="link" onClick={() => handleDelete(coin.id)}>Удалить</Button>
-          </li>
-        ))}
-      </ul>
+      {/* Добавляем новую строку для отображения общей суммы портфеля */}
+      <Table
+        dataSource={portfolio}
+        columns={columns}
+        rowKey="id"
+        footer={() => (
+          <Text strong>Общая сумма портфеля: ${totalPortfolioValue.toFixed(2)}</Text>
+        )}
+      />
     </Modal>
   );
 };

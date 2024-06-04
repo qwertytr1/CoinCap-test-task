@@ -12,6 +12,7 @@ const App: React.FC = () => {
   const [portfolio, setPortfolio] = useState<CurrencyEntity[]>([]);
   const [cryptoRates, setCryptoRates] = useState<CurrencyEntity[]>([]);
   const [addCoinsModalVisible, setAddCoinsModalVisible] = useState<boolean>(false);
+  const [selectedCoinsToAdd, setSelectedCoinsToAdd] = useState<CurrencyEntity[]>([]);
 
   useEffect(() => {
     fetchCryptoRates();
@@ -26,6 +27,8 @@ const App: React.FC = () => {
   };
 
   const handleOpenAddCoinsModal = () => {
+    const selectedCoins = cryptoRates.filter(coin => !portfolio.some(portfolioCoin => portfolioCoin.id === coin.id));
+    setSelectedCoinsToAdd(selectedCoins);
     setAddCoinsModalVisible(true);
   };
 
@@ -33,19 +36,16 @@ const App: React.FC = () => {
     setAddCoinsModalVisible(false);
   };
 
-  const handleAddCoins = (selectedCoins: CurrencyEntity[]) => {
+  const handleAddCoins = async (selectedCoins: CurrencyEntity[]) => {
     const updatedPortfolio = [...portfolio, ...selectedCoins];
     setPortfolio(updatedPortfolio);
+    setPortfolioVisible(true);
+    setAddCoinsModalVisible(false);
   };
 
   const handleDeleteCoin = (id: string) => {
     const updatedPortfolio = portfolio.filter(coin => coin.id !== id);
     setPortfolio(updatedPortfolio);
-  };
-
-  const handlePortfolioUpdate = (updatedPortfolio: CurrencyEntity[]) => {
-    setPortfolio(updatedPortfolio);
-    // Additional actions if needed
   };
 
   const fetchCryptoRates = async () => {
@@ -57,13 +57,40 @@ const App: React.FC = () => {
     }
   };
 
+  const handleAddToPortfolio = (coin: CurrencyEntity) => {
+    // Проверяем, если монета уже есть в портфеле, то не добавляем
+    if (!portfolio.some(portfolioCoin => portfolioCoin.id === coin.id)) {
+      const updatedPortfolio = [...portfolio, coin];
+      setPortfolio(updatedPortfolio);
+    }
+  };
+
   return (
     <div className="App">
       <Header />
-      <PortfolioButton cryptoRates={cryptoRates} onOpenAddCoinsModal={handleOpenAddCoinsModal} onAddToPortfolio={() => {}} />
-      {portfolioVisible && <PortfolioModal onClose={handleClosePortfolio} visible={portfolioVisible} portfolio={portfolio} onDelete={handleDeleteCoin} cryptoRates={cryptoRates} onPortfolioUpdate={handlePortfolioUpdate} />}
-      <CoinTable />
-      <AddCoinsModal visible={addCoinsModalVisible} onClose={handleCloseAddCoinsModal} coins={cryptoRates} onAddCoins={handleAddCoins} />
+      <PortfolioButton
+        cryptoRates={cryptoRates}
+        onOpenAddCoinsModal={handleOpenAddCoinsModal}
+        onAddToPortfolio={handleAddToPortfolio}
+        onOpenPortfolio={handleOpenPortfolio}
+      />
+      <PortfolioModal
+        visible={portfolioVisible}
+        onClose={handleClosePortfolio}
+        portfolio={portfolio}
+        onDelete={handleDeleteCoin}
+      />
+      <CoinTable
+        portfolio={portfolio}
+        onAddToPortfolio={handleAddToPortfolio}
+        onDeleteCoin={handleDeleteCoin} // Передаем функцию удаления
+      />
+      <AddCoinsModal
+        open={addCoinsModalVisible}
+        onClose={handleCloseAddCoinsModal}
+        coins={selectedCoinsToAdd}
+        onAddCoins={handleAddCoins}
+      />
     </div>
   );
 };

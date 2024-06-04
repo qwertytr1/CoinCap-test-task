@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Spin, Typography, Select, Modal } from 'antd';
+import { Button, Spin, Typography, Select } from 'antd';
 import { Line } from 'react-chartjs-2';
 import { Chart, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import { CurrencyEntity } from '../interfaces';
@@ -22,12 +22,12 @@ interface ChartApiResponse {
     data: ChartDataPoint[];
 }
 
-const CoinPage = ({ coin, onClose }: { coin: CurrencyEntity; onClose: () => void }) => {
+const CoinPage = ({ coin, onClose, onAddToPortfolio }: { coin: CurrencyEntity; onClose: () => void; onAddToPortfolio: (coin: CurrencyEntity) => void }) => {
     const [chartData, setChartData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [timeRange, setTimeRange] = useState('d1');
-    const [addCoinsModalVisible, setAddCoinsModalVisible] = useState(false); // Состояние видимости модального окна для добавления монет
+    const [addCoinsModalVisible, setAddCoinsModalVisible] = useState(false);
 
     const fetchChartData = async (range: string) => {
         setLoading(true);
@@ -93,8 +93,9 @@ const CoinPage = ({ coin, onClose }: { coin: CurrencyEntity; onClose: () => void
         setTimeRange(value);
     };
 
-    const handleAddToPortfolio = () => {
-        setAddCoinsModalVisible(true); // Открываем модальное окно при нажатии на кнопку
+    const handleAddToPortfolio = (coins: CurrencyEntity[]) => {
+        coins.forEach(onAddToPortfolio); // Передаем выбранную монету в родительский компонент
+        setAddCoinsModalVisible(false); // Закрываем модальное окно
     };
 
     return (
@@ -118,7 +119,7 @@ const CoinPage = ({ coin, onClose }: { coin: CurrencyEntity; onClose: () => void
                     <Option value="h1">1 час</Option>
                 </Select>
                 <Button onClick={onClose}>Назад</Button>
-                <Button type="primary" onClick={handleAddToPortfolio}>Добавить в портфель</Button> {/* Добавляем обработчик для открытия модального окна */}
+                <Button type="primary" onClick={() => setAddCoinsModalVisible(true)}>Добавить</Button>
             </div>
             <div className="coin-chart">
                 {loading ? (
@@ -146,16 +147,11 @@ const CoinPage = ({ coin, onClose }: { coin: CurrencyEntity; onClose: () => void
                     }} />
                 ) : null}
             </div>
-            {/* Модальное окно для добавления монет */}
             <AddCoinsModal
-                visible={addCoinsModalVisible}
+                open={addCoinsModalVisible}
                 onClose={() => setAddCoinsModalVisible(false)}
-                coins={[coin]} // Передаем монету, которую нужно добавить в портфель
-                onAddCoins={() => {
-                    // Логика для добавления монет в портфель
-                    setAddCoinsModalVisible(false);
-                    // Дополнительные действия при добавлении монеты в портфель, если нужно
-                }}
+                coins={[coin]} // Передаем выбранную монету в модальное окно для добавления
+                onAddCoins={handleAddToPortfolio} // Обработчик добавления монеты в портфель
             />
         </div>
     );
