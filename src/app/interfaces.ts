@@ -1,3 +1,4 @@
+
 export interface CurrencyEntity {
 
         id: string;
@@ -14,7 +15,10 @@ export interface CurrencyEntity {
         explorer: string;
 
 }
-
+export interface CoinTableContentProps {
+    coins: CurrencyEntity[];
+    onSelectCoin: (coinId: string) => void;
+  }
 export interface NormalizedCurrencyEntity {
     [key: string]: CurrencyEntity;
 }
