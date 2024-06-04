@@ -1,41 +1,42 @@
 import React from 'react';
-import { Table, Typography, Button } from 'antd';
+import { Table, Typography } from 'antd';
 import { CurrencyEntity } from '../interfaces';
-import { TablePaginationConfig, SorterResult, TableCurrentDataSource, FilterValue } from 'antd/lib/table/interface';
 import { formatValue } from './utils';
+import PortfolioButton from '../modul/PortfolioButton';
 
 const { Column } = Table;
 const { Text } = Typography;
 
 interface CoinTableContentProps {
-    coins: CurrencyEntity[];
-    onSelectCoin: (coinId: string) => void;
+  coins: CurrencyEntity[];
+  onSelectCoin: (coinId: string) => void;
+  onAddToPortfolio: () => void;
+  onOpenAddCoinsModal: () => void; // Add this line to include the missing prop
+}
 
-  }
-
-const CoinTableContent: React.FC<CoinTableContentProps> = ({ coins,onSelectCoin }) => {
+const CoinTableContent: React.FC<CoinTableContentProps> = ({ coins, onSelectCoin, onAddToPortfolio, onOpenAddCoinsModal }) => {
   return (
-    <Table
-      dataSource={coins}
-      rowKey="id"
-
-      onRow={(record) => ({
-        onClick: () => onSelectCoin(record.id),
-      })}
-    >
+    <div>
+      <Table
+        dataSource={coins}
+        rowKey="id"
+        onRow={(record) => ({
+          onClick: () => onSelectCoin(record.id),
+        })}
+      >
+        <Column
+          title="Название монеты"
+          key="name"
+          render={(record: CurrencyEntity) => (
+            <div>
+              <Text strong>{record.name}</Text>
+              <Text type="secondary" style={{ marginLeft: 5 }}>
+                {record.symbol}
+              </Text>
+            </div>
+          )}
+        />
       <Column
-        title="Название монеты"
-        key="name"
-        render={(record: CurrencyEntity) => (
-          <div>
-            <Text strong>{record.name}</Text>
-            <Text type="secondary" style={{ marginLeft: 5 }}>
-              {record.symbol}
-            </Text>
-          </div>
-        )}
-      />
-     <Column
         title="Логотип монеты"
         dataIndex="symbol"
         key="logo"
@@ -64,12 +65,18 @@ const CoinTableContent: React.FC<CoinTableContentProps> = ({ coins,onSelectCoin 
         render={(value: string) => `${Number(value).toFixed(2)}%`}
         sorter
       />
-      <Column
-        title="Добавить в портфель"
-        key="add"
-        render={() => <Button type="primary">Добавить</Button>}
-      />
-    </Table>
+
+<Column
+  title="Добавить в портфель"
+  key="add"
+  render={(record: CurrencyEntity) => (
+    <PortfolioButton cryptoRates={coins} onAddToPortfolio={() => onAddToPortfolio()} onOpenAddCoinsModal={onOpenAddCoinsModal} />
+  )}
+/>
+
+
+  </Table>
+    </div>
   );
 };
 

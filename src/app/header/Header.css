@@ -1,0 +1,27 @@
+/* Header.css */
+.header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50px;
+    background-color: #f0f0f0;
+    overflow: hidden;
+  }
+
+  .crypto-rates {
+    display: flex;
+    white-space: nowrap;
+    animation: ticker 50s linear infinite;
+  }
+  .portfolio-button {
+    margin-left: 10px;
+  }
+  .ticker {
+    display: inline-block;
+    padding: 0 10px;
+  }
+
+  @keyframes ticker {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+  }
