@@ -48,9 +48,9 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ visible, onClose, portf
       footer={[
         <Button key="close" onClick={onClose}>Закрыть</Button>,
       ]}
-      width={800} // Установка ширины модального окна
+      width={800}
     >
-      {/* Добавляем новую строку для отображения общей суммы портфеля */}
+
       <Table
         dataSource={portfolio}
         columns={columns}

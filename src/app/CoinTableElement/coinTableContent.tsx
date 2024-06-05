@@ -1,8 +1,8 @@
-import React from 'react';
-import { Table, Typography } from 'antd';
+import React, { useState } from 'react';
+import { Table, Typography, Button } from 'antd';
 import { CurrencyEntity } from '../interfaces';
 import { formatValue } from './utils';
-import PortfolioButton from '../modul/PortfolioButton';
+import AddCoinsModal from '../modul/addCoins';
 
 const { Column } = Table;
 const { Text } = Typography;
@@ -10,15 +10,25 @@ const { Text } = Typography;
 interface CoinTableContentProps {
   coins: CurrencyEntity[];
   onSelectCoin: (coinId: string) => void;
-  onAddToPortfolio: (coin: CurrencyEntity) => void;
-  onOpenAddCoinsModal: () => void;
-  onOpenPortfolio: () => void;
+  onAddToPortfolio: (coins: CurrencyEntity[], quantity: number) => void;
+  onOpenAddCoinsModal: () => void; // Add this property to the interface
 }
 
-const CoinTableContent: React.FC<CoinTableContentProps> = ({ coins, onSelectCoin, onAddToPortfolio, onOpenAddCoinsModal, onOpenPortfolio }) => {
-  // Create a unique list of coins
+const CoinTableContent: React.FC<CoinTableContentProps> = ({ coins, onSelectCoin, onAddToPortfolio, onOpenAddCoinsModal }) => {
+  const [selectedCoinToAdd, setSelectedCoinToAdd] = useState<CurrencyEntity | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [quantity, setQuantity] = useState<number>(0);
+
   const uniqueCoins = Array.from(new Set(coins.map(coin => coin.id)))
     .map(id => coins.find(coin => coin.id === id) as CurrencyEntity);
+
+  const handleAddCoin = () => {
+    if (selectedCoinToAdd && quantity > 0) {
+      onAddToPortfolio([selectedCoinToAdd], quantity);
+      setIsModalOpen(false);
+      setQuantity(0);
+    }
+  };
 
   return (
     <div>
@@ -26,7 +36,9 @@ const CoinTableContent: React.FC<CoinTableContentProps> = ({ coins, onSelectCoin
         dataSource={uniqueCoins}
         rowKey="id"
         onRow={(record) => ({
-          onClick: () => onSelectCoin(record.id),
+          onClick: () => {
+            onSelectCoin(record.id);
+          },
         })}
       >
         <Column
@@ -54,35 +66,44 @@ const CoinTableContent: React.FC<CoinTableContentProps> = ({ coins, onSelectCoin
           dataIndex="priceUsd"
           key="priceUsd"
           render={(value: string) => `$${formatValue(value)}`}
-          sorter
+          sorter={(a: CurrencyEntity, b: CurrencyEntity) => parseFloat(a.priceUsd) - parseFloat(b.priceUsd)}
         />
         <Column
           title="Рыночная капитализация в USD"
           dataIndex="marketCapUsd"
           key="marketCapUsd"
           render={(value: string) => `$${formatValue(value)}`}
-          sorter
+          sorter={(a: CurrencyEntity, b: CurrencyEntity) => parseFloat(a.marketCapUsd) - parseFloat(b.marketCapUsd)}
         />
         <Column
           title="Изменение за 24 часа (%)"
           dataIndex="changePercent24Hr"
           key="changePercent24Hr"
           render={(value: string) => `${Number(value).toFixed(2)}%`}
-          sorter
+          sorter={(a: CurrencyEntity, b: CurrencyEntity) => parseFloat(a.changePercent24Hr) - parseFloat(b.changePercent24Hr)}
         />
         <Column
-          title="Действие"
-          key="action"
+          title="Добавить в портфель"
+          key="add"
           render={(record: CurrencyEntity) => (
-            <PortfolioButton
-              cryptoRates={[]} // or undefined
-              onOpenAddCoinsModal={onOpenAddCoinsModal}
-              onAddToPortfolio={() => onAddToPortfolio(record)} // Updated
-              onOpenPortfolio={onOpenPortfolio}
-            />
+            <Button
+              onClick={() => {
+                setSelectedCoinToAdd(record);
+                setIsModalOpen(true);
+              }}
+            >
+              Добавить
+            </Button>
           )}
         />
       </Table>
+
+      <AddCoinsModal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        coins={selectedCoinToAdd ? [selectedCoinToAdd] : []}
+        onAddCoins={handleAddCoin}
+      />
     </div>
   );
 };

@@ -6,13 +6,17 @@ import { CurrencyEntity } from '../interfaces';
 import { httpGet } from '../api/apiHandler';
 import { format, fromUnixTime } from 'date-fns';
 import './CoinPage.css';
-import AddCoinsModal from '../modul/addCoins'; // Импортируем компонент модального окна для добавления монет
+import AddCoinsModal from '../modul/addCoins'; // Import add coins modal component
 
 const { Text } = Typography;
 const { Option } = Select;
 
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
-
+interface CoinPageProps {
+    coin: CurrencyEntity;
+    onClose: () => void;
+    onAddToPortfolio: (coins: CurrencyEntity[], quantity: number) => void; // Adjusted function signature
+}
 interface ChartDataPoint {
     time: number;
     priceUsd: string;
@@ -22,7 +26,7 @@ interface ChartApiResponse {
     data: ChartDataPoint[];
 }
 
-const CoinPage = ({ coin, onClose, onAddToPortfolio }: { coin: CurrencyEntity; onClose: () => void; onAddToPortfolio: (coin: CurrencyEntity) => void }) => {
+const CoinPage = ({ coin, onClose, onAddToPortfolio }:CoinPageProps ) => {
     const [chartData, setChartData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -92,11 +96,11 @@ const CoinPage = ({ coin, onClose, onAddToPortfolio }: { coin: CurrencyEntity; o
     const handleTimeRangeChange = (value: string) => {
         setTimeRange(value);
     };
-
-    const handleAddToPortfolio = (coins: CurrencyEntity[]) => {
-        coins.forEach(onAddToPortfolio); // Передаем выбранную монету в родительский компонент
-        setAddCoinsModalVisible(false); // Закрываем модальное окно
+    const handleAddToPortfolioLocal = (coins: CurrencyEntity[], quantity: number) => {
+        coins.forEach(coin => onAddToPortfolio([coin], quantity)); // Pass each coin and the quantity to the parent component
+        setAddCoinsModalVisible(false);
     };
+
 
     return (
         <div className="coin-page">
@@ -150,8 +154,8 @@ const CoinPage = ({ coin, onClose, onAddToPortfolio }: { coin: CurrencyEntity; o
             <AddCoinsModal
                 open={addCoinsModalVisible}
                 onClose={() => setAddCoinsModalVisible(false)}
-                coins={[coin]} // Передаем выбранную монету в модальное окно для добавления
-                onAddCoins={handleAddToPortfolio} // Обработчик добавления монеты в портфель
+                coins={[coin]} // Pass the selected coin to the modal window for adding
+                onAddCoins={handleAddToPortfolioLocal} // Handler for adding the coin to the portfolio
             />
         </div>
     );

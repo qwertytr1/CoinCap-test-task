@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import Header from './app/header/header';
-import PortfolioButton from './app/modul/PortfolioButton';
 import CoinTable from './app/coinTable';
 import PortfolioModal from './app/modul/modulPage';
 import AddCoinsModal from './app/modul/addCoins';
@@ -57,21 +56,22 @@ const App: React.FC = () => {
     }
   };
 
-  const handleAddToPortfolio = (coin: CurrencyEntity) => {
-    // Проверяем, если монета уже есть в портфеле, то не добавляем
-    if (!portfolio.some(portfolioCoin => portfolioCoin.id === coin.id)) {
-      const updatedPortfolio = [...portfolio, coin];
-      setPortfolio(updatedPortfolio);
-    }
-  };
-
+  const handleAddToPortfolio = (coins: CurrencyEntity[], quantity: number) => {
+    coins.forEach(coin => {
+        if (!portfolio.some(portfolioCoin => portfolioCoin.id === coin.id)) {
+            const updatedPortfolio = [...portfolio, coin];
+            setPortfolio(updatedPortfolio);
+        }
+    });
+};
   return (
     <div className="App">
       <Header />
-      <PortfolioButton
-        cryptoRates={cryptoRates}
-        onOpenAddCoinsModal={handleOpenAddCoinsModal}
+      <CoinTable
+        portfolio={portfolio}
         onAddToPortfolio={handleAddToPortfolio}
+        onDeleteCoin={handleDeleteCoin}
+        onOpenAddCoinsModal={handleOpenAddCoinsModal}
         onOpenPortfolio={handleOpenPortfolio}
       />
       <PortfolioModal
@@ -79,11 +79,6 @@ const App: React.FC = () => {
         onClose={handleClosePortfolio}
         portfolio={portfolio}
         onDelete={handleDeleteCoin}
-      />
-      <CoinTable
-        portfolio={portfolio}
-        onAddToPortfolio={handleAddToPortfolio}
-        onDeleteCoin={handleDeleteCoin} // Передаем функцию удаления
       />
       <AddCoinsModal
         open={addCoinsModalVisible}
