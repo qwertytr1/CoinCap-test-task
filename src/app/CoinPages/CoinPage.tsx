@@ -150,8 +150,8 @@ const CoinPage = ({ coin, onClose, onAddToPortfolio }: { coin: CurrencyEntity; o
             <AddCoinsModal
                 open={addCoinsModalVisible}
                 onClose={() => setAddCoinsModalVisible(false)}
-                coins={[coin]} // Передаем выбранную монету в модальное окно для добавления
-                onAddCoins={handleAddToPortfolio} // Обработчик добавления монеты в портфель
+                coins={[coin]}
+                onAddCoins={handleAddToPortfolio}
             />
         </div>
     );

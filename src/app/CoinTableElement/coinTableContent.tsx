@@ -15,7 +15,7 @@ interface CoinTableContentProps {
 }
 
 const CoinTableContent: React.FC<CoinTableContentProps> = ({ coins, onSelectCoin, onAddToPortfolio, onOpenAddCoinsModal, onOpenPortfolio }) => {
-  // Create a unique list of coins
+
   const uniqueCoins = Array.from(new Set(coins.map(coin => coin.id)))
     .map(id => coins.find(coin => coin.id === id) as CurrencyEntity);
 

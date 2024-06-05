@@ -9,10 +9,9 @@ interface PortfolioModalProps {
   onDelete: (id: string) => void;
 }
 
-const { Text } = Typography; // Деструктурируем Text из Typography
-
+const { Text } = Typography;
 const PortfolioModal: React.FC<PortfolioModalProps> = ({ visible, onClose, portfolio, onDelete }) => {
-  // Функция для вычисления общей суммы портфеля
+
   const totalPortfolioValue = portfolio.reduce((acc, coin) => acc + parseFloat(coin.priceUsd), 0);
 
   const columns = [
@@ -48,10 +47,9 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ visible, onClose, portf
       footer={[
         <Button key="close" onClick={onClose}>Закрыть</Button>,
       ]}
-      width={800} // Установка ширины модального окна
+      width={800}
     >
-      {/* Добавляем новую строку для отображения общей суммы портфеля */}
-      <Table
+       <Table
         dataSource={portfolio}
         columns={columns}
         rowKey="id"

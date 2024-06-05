@@ -74,7 +74,7 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
           <CoinTableContent
             coins={coins}
             onSelectCoin={handleSelectCoin}
-            onAddToPortfolio={onAddToPortfolio} // Передаем функцию как есть
+            onAddToPortfolio={onAddToPortfolio}
             onOpenAddCoinsModal={handleOpenPortfolio}
             onOpenPortfolio={handleOpenPortfolio}
           />
@@ -82,7 +82,7 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
             visible={portfolioVisible}
             onClose={handleClosePortfolio}
             portfolio={portfolio}
-            onDelete={onDeleteCoin} // Передаем функцию удаления
+            onDelete={onDeleteCoin}
           />
         </>
       )}

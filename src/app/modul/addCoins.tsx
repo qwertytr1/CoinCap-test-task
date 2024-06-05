@@ -13,15 +13,11 @@ const AddCoinsModal: React.FC<AddCoinsModalProps> = ({ open, onClose, coins, onA
     const [coinQuantities, setCoinQuantities] = useState<{ [key: string]: number }>({});
 
     const handleAddCoins = () => {
-        // Фильтруем выбранные монеты, оставляем только те, у которых количество больше 0
         const selectedCoins = coins.filter(coin => coinQuantities[coin.id] > 0);
-        // Вызываем обработчик для добавления монет в портфель для каждой выбранной монеты
         selectedCoins.forEach(coin => {
-            onAddCoins([coin]); // Calling onAddCoins with an array containing a single coin
+            onAddCoins([coin]);
         });
-        // Очищаем состояние количества монет
         setCoinQuantities({});
-        // Закрываем модальное окно
         onClose();
     };
     return (
@@ -35,7 +31,7 @@ const AddCoinsModal: React.FC<AddCoinsModalProps> = ({ open, onClose, coins, onA
             ]}
         >
             <div>
-                {/* Для каждой монеты в списке выводим соответствующее поле для ввода количества */}
+
                 {coins.map(coin => (
                     <div key={coin.id}>
                         <p>{coin.name} ({coin.symbol}) - {coin.priceUsd}</p>
