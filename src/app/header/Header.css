@@ -11,7 +11,7 @@
   .crypto-rates {
     display: flex;
     white-space: nowrap;
-    animation: ticker 50s linear infinite;
+    animation: marquee 50s linear infinite;
   }
   .portfolio-button {
     margin-left: 10px;
@@ -21,7 +21,14 @@
     padding: 0 10px;
   }
 
-  @keyframes ticker {
-    0% { transform: translateX(100%); }
-    100% { transform: translateX(-100%); }
+  @keyframes marquee {
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+  .crypto-rates-container {
+    overflow: hidden;
   }

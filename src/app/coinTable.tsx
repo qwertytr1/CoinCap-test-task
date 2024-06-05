@@ -4,26 +4,23 @@ import { httpGet } from './api/apiHandler';
 import CoinSearch from './CoinTableElement/coinSearch';
 import CoinTableContent from './CoinTableElement/coinTableContent';
 import CoinPage from './CoinPages/CoinPage';
-import PortfolioModal from './modul/modulPage';
-import AddCoinsModal from './modul/addCoins';
+import PortfolioModal from './modul/modulPage'; // Import PortfolioModal component
 import { useParams } from 'react-router-dom';
 import { CurrencyEntity } from './interfaces';
 
 interface CoinTableProps {
   portfolio: CurrencyEntity[];
-  onAddToPortfolio: (coins: CurrencyEntity[], quantity: number) => void;
-  onDeleteCoin: (id: string) => void;
-  onOpenAddCoinsModal: () => void;
-  onOpenPortfolio: () => void;
+  onAddToPortfolio: (coin: CurrencyEntity) => void;
+  onDeleteCoin: (id: string) => void; // Add this line
 }
 
-const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDeleteCoin, onOpenAddCoinsModal, onOpenPortfolio }) => {
+const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDeleteCoin }) => {
   const { coinId } = useParams();
   const [coins, setCoins] = useState<CurrencyEntity[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCoin, setSelectedCoin] = useState<CurrencyEntity | null>(null);
   const [searchValue, setSearchValue] = useState('');
-  const [addCoinsModalVisible, setAddCoinsModalVisible] = useState<boolean>(false);
+  const [portfolioVisible, setPortfolioVisible] = useState<boolean>(false);
 
   useEffect(() => {
     fetchCoins();
@@ -57,6 +54,14 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
     setSearchValue(value);
   };
 
+  const handleOpenPortfolio = () => {
+    setPortfolioVisible(true);
+  };
+
+  const handleClosePortfolio = () => {
+    setPortfolioVisible(false);
+  };
+
   return (
     <div style={{ width: '80%', margin: 'auto' }}>
       <CoinSearch searchValue={searchValue} handleSearch={handleSearch} />
@@ -69,14 +74,15 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
           <CoinTableContent
             coins={coins}
             onSelectCoin={handleSelectCoin}
-            onAddToPortfolio={onAddToPortfolio}
-            onOpenAddCoinsModal={() => setAddCoinsModalVisible(true)}
+            onAddToPortfolio={onAddToPortfolio} // Передаем функцию как есть
+            onOpenAddCoinsModal={handleOpenPortfolio}
+            onOpenPortfolio={handleOpenPortfolio}
           />
-          <AddCoinsModal // Add coins modal
-            open={addCoinsModalVisible}
-            onClose={() => setAddCoinsModalVisible(false)}
-            coins={coins}
-            onAddCoins={onAddToPortfolio}
+          <PortfolioModal
+            visible={portfolioVisible}
+            onClose={handleClosePortfolio}
+            portfolio={portfolio}
+            onDelete={onDeleteCoin} // Передаем функцию удаления
           />
         </>
       )}
