@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Table, Modal, Typography } from 'antd'; // Импорт Typography из Ant Design
+import { Button, Table, Modal, Typography } from 'antd';
 import { CurrencyEntity } from '../interfaces';
 
 interface PortfolioModalProps {
@@ -7,12 +7,13 @@ interface PortfolioModalProps {
   onClose: () => void;
   portfolio: CurrencyEntity[];
   onDelete: (id: string) => void;
+  totalPortfolioValue: number;
 }
 
 const { Text } = Typography;
-const PortfolioModal: React.FC<PortfolioModalProps> = ({ visible, onClose, portfolio, onDelete }) => {
 
-  const totalPortfolioValue = portfolio.reduce((acc, coin) => acc + parseFloat(coin.priceUsd ), 0);
+const PortfolioModal: React.FC<PortfolioModalProps> = ({ visible, onClose, portfolio, onDelete, totalPortfolioValue }) => {
+  console.log('Props in PortfolioModal:', { visible, portfolio, totalPortfolioValue });
 
   const columns = [
     {
@@ -29,6 +30,14 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ visible, onClose, portf
       title: 'Цена в USD',
       dataIndex: 'priceUsd',
       key: 'priceUsd',
+      render: (text: string, record: CurrencyEntity) => (
+        <span>${(parseFloat(record.priceUsd) * (record.quantity || 0)).toFixed(2)}</span>
+      ),
+    },
+    {
+      title: 'Количество',
+      dataIndex: 'quantity',
+      key: 'quantity',
     },
     {
       title: 'Действие',
@@ -49,7 +58,7 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ visible, onClose, portf
       ]}
       width={800}
     >
-       <Table
+      <Table
         dataSource={portfolio}
         columns={columns}
         rowKey="id"

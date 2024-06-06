@@ -12,7 +12,8 @@ export interface CurrencyEntity {
   changePercent24Hr: string;
   vwap24Hr: string;
   explorer: string;
-  quantity: number; // Добавляем новое свойство quantity
+  quantity: number;
+  purchasePrice: number;
 }
 export interface CoinTableContentProps {
     coins: CurrencyEntity[];

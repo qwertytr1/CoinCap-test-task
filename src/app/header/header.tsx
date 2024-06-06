@@ -6,9 +6,10 @@ import './Header.css';
 interface HeaderProps {
   portfolio: CurrencyEntity[];
   onOpenPortfolio: () => void;
+  totalPortfolioValue: number;
 }
 
-const Header: React.FC<HeaderProps> = ({ portfolio, onOpenPortfolio }) => {
+const Header: React.FC<HeaderProps> = ({ portfolio, onOpenPortfolio, totalPortfolioValue }) => {
   const [cryptoRates, setCryptoRates] = useState<CurrencyEntity[]>([]);
   const [initialPortfolioValue, setInitialPortfolioValue] = useState<number>(0);
 
@@ -28,13 +29,12 @@ const Header: React.FC<HeaderProps> = ({ portfolio, onOpenPortfolio }) => {
   }, []);
 
   useEffect(() => {
-    const initialValue = portfolio.reduce((acc, coin) => acc + parseFloat(coin.priceUsd), 0);
+    const initialValue = portfolio.reduce((acc, coin) => acc + (coin.purchasePrice * (coin.quantity || 0)), 0);
     setInitialPortfolioValue(initialValue);
   }, [portfolio]);
 
-  const currentPortfolioValue = portfolio.reduce((acc, coin) => acc + parseFloat(coin.priceUsd), 0);
-  const portfolioChange = currentPortfolioValue - initialPortfolioValue;
-  const portfolioChangePercentage = ((portfolioChange / initialPortfolioValue) * 100).toFixed(2);
+  const portfolioChange = totalPortfolioValue - initialPortfolioValue;
+  const portfolioChangePercentage = initialPortfolioValue !== 0 ? ((portfolioChange / initialPortfolioValue) * 100).toFixed(2) : '0.00';
 
   return (
     <div className="header">
@@ -48,7 +48,7 @@ const Header: React.FC<HeaderProps> = ({ portfolio, onOpenPortfolio }) => {
         </div>
       </div>
       <div className="portfolio-value" onClick={onOpenPortfolio}>
-        {currentPortfolioValue.toFixed(2)} USD {portfolioChange >= 0 ? '+' : ''}{portfolioChange.toFixed(2)} ({portfolioChangePercentage}%)
+        {totalPortfolioValue.toFixed(2)} USD {portfolioChange >= 0 ? '+' : ''}{portfolioChange.toFixed(2)} ({portfolioChangePercentage}%)
       </div>
     </div>
   );
