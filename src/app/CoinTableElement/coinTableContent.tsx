@@ -109,3 +109,4 @@ const CoinTableContent: React.FC<CoinTableContentProps> = ({
 };
 
 export default CoinTableContent;
+export type {CoinTableContentProps}

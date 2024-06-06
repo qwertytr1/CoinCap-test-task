@@ -71,3 +71,4 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ visible, onClose, portf
 };
 
 export default PortfolioModal;
+export type { PortfolioModalProps };

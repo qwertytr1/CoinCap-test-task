@@ -55,3 +55,4 @@ const AddCoinsModal: React.FC<AddCoinsModalProps> = ({ open, onClose, coins, onA
 };
 
 export default AddCoinsModal;
+export type { AddCoinsModalProps };
