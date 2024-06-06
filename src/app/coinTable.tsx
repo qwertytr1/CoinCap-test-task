@@ -84,7 +84,7 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
     if (pagination.current !== currentPage) {
       setCurrentPage(pagination.current);
     }
-    // Handle sorter change
+
   };
 
   const filteredCoins = coins.filter(coin =>

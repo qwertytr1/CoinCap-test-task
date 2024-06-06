@@ -1,6 +1,6 @@
 import React from 'react';
 import { StoryFn, Meta } from '@storybook/react';
-import PortfolioModal, { PortfolioModalProps } from '../app/modul/modulPage'; // Adjust the import path as necessary
+import PortfolioModal, { PortfolioModalProps } from '../app/modul/modulPage';
 
 export default {
   title: 'PortfolioModal',

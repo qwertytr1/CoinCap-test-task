@@ -37,7 +37,7 @@ const CoinPage = ({ coin, onClose, onAddToPortfolio }: { coin: CurrencyEntity; o
             const data = response.data.data;
 
             const formattedData = {
-                labels: data.map(entry => format(fromUnixTime(entry.time / 1000), 'dd.MM.yyyy')), // Форматирование даты
+                labels: data.map(entry => format(fromUnixTime(entry.time / 1000), 'dd.MM.yyyy')),
                 datasets: [
                     {
                         label: `Цена ${coin.name} в USD`,

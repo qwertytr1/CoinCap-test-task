@@ -13,6 +13,6 @@ export const Default = Template.bind({});
 Default.args = {
   searchValue: '',
   handleSearch: (value: string) => {
-    console.log('Searching for:', value);
+
   },
 };

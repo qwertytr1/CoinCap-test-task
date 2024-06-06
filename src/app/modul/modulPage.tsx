@@ -13,7 +13,6 @@ interface PortfolioModalProps {
 const { Text } = Typography;
 
 const PortfolioModal: React.FC<PortfolioModalProps> = ({ visible, onClose, portfolio, onDelete, totalPortfolioValue }) => {
-  console.log('Props in PortfolioModal:', { visible, portfolio, totalPortfolioValue });
 
   const columns = [
     {
