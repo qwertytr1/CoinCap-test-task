@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Modal, Button, InputNumber } from 'antd';
 import { CurrencyEntity } from '../interfaces';
+import styles from './AddCoinsModal.module.scss';
 
 interface AddCoinsModalProps {
     open: boolean;
     onClose: () => void;
     coins: CurrencyEntity[];
-    onAddCoins: (selectedCoins: CurrencyEntity[]) => void;
+    onAddCoins: (selectedCoins: CurrencyEntity[], quantities: { [key: string]: number }) => void;
 }
 
 const AddCoinsModal: React.FC<AddCoinsModalProps> = ({ open, onClose, coins, onAddCoins }) => {
@@ -14,9 +15,9 @@ const AddCoinsModal: React.FC<AddCoinsModalProps> = ({ open, onClose, coins, onA
 
     const handleAddCoins = () => {
         const selectedCoins = coins.filter(coin => coinQuantities[coin.id] > 0);
-        selectedCoins.forEach(coin => {
-            onAddCoins([coin]);
-        });
+        console.log("Selected coins to add:", selectedCoins);
+        console.log("Quantities:", coinQuantities);
+        onAddCoins(selectedCoins, coinQuantities); // Передаем выбранные монеты и их количество
         setCoinQuantities({});
         onClose();
     };
@@ -31,13 +32,11 @@ const AddCoinsModal: React.FC<AddCoinsModalProps> = ({ open, onClose, coins, onA
             ]}
         >
             <div>
-
                 {coins.map(coin => (
                     <div key={coin.id}>
                         <p>{coin.name} ({coin.symbol}) - {coin.priceUsd}</p>
                         <InputNumber
                             min={0}
-                            defaultValue={0}
                             value={coinQuantities[coin.id] || 0}
                             onChange={value => {
                                 setCoinQuantities(prev => ({

@@ -12,7 +12,7 @@ interface PortfolioModalProps {
 const { Text } = Typography;
 const PortfolioModal: React.FC<PortfolioModalProps> = ({ visible, onClose, portfolio, onDelete }) => {
 
-  const totalPortfolioValue = portfolio.reduce((acc, coin) => acc + parseFloat(coin.priceUsd), 0);
+  const totalPortfolioValue = portfolio.reduce((acc, coin) => acc + parseFloat(coin.priceUsd ), 0);
 
   const columns = [
     {

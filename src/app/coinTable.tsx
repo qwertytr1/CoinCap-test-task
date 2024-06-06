@@ -21,6 +21,7 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
   const [selectedCoin, setSelectedCoin] = useState<CurrencyEntity | null>(null);
   const [searchValue, setSearchValue] = useState('');
   const [portfolioVisible, setPortfolioVisible] = useState<boolean>(false);
+  const [addCoinsModalVisible, setAddCoinsModalVisible] = useState<boolean>(false);
 
   useEffect(() => {
     fetchCoins();
@@ -62,6 +63,14 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
     setPortfolioVisible(false);
   };
 
+  const handleOpenAddCoinsModal = () => {
+    setAddCoinsModalVisible(true);
+  };
+
+  const handleCloseAddCoinsModal = () => {
+    setAddCoinsModalVisible(false);
+  };
+
   return (
     <div style={{ width: '80%', margin: 'auto' }}>
       <CoinSearch searchValue={searchValue} handleSearch={handleSearch} />
@@ -71,13 +80,14 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
         <CoinPage coin={selectedCoin} onClose={handleCloseCoinInfo} onAddToPortfolio={onAddToPortfolio} />
       ) : (
         <>
-          <CoinTableContent
-            coins={coins}
-            onSelectCoin={handleSelectCoin}
-            onAddToPortfolio={onAddToPortfolio}
-            onOpenAddCoinsModal={handleOpenPortfolio}
-            onOpenPortfolio={handleOpenPortfolio}
-          />
+ <CoinTableContent
+  coins={coins}
+  onSelectCoin={handleSelectCoin}
+  onAddToPortfolio={onAddToPortfolio}
+  onOpenAddCoinsModal={handleOpenAddCoinsModal}
+  onOpenPortfolio={handleOpenPortfolio}
+
+/>
           <PortfolioModal
             visible={portfolioVisible}
             onClose={handleClosePortfolio}

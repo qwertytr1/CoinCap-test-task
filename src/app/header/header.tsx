@@ -1,14 +1,16 @@
-// Header.tsx
 import React, { useEffect, useState } from 'react';
 import { httpGet } from '../api/apiHandler';
 import { CurrencyEntity } from '../interfaces';
-import PortfolioModal from '../modul/modulPage'; // Импортируем компонент модального окна с портфолио
-import './Header.css'; // Подключение CSS файла
+import './Header.css';
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  portfolio: CurrencyEntity[];
+  onOpenPortfolio: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ portfolio, onOpenPortfolio }) => {
   const [cryptoRates, setCryptoRates] = useState<CurrencyEntity[]>([]);
-  const [portfolioVisible, setPortfolioVisible] = useState<boolean>(false);
-  const [portfolio, setPortfolio] = useState<CurrencyEntity[]>([]); // Состояние портфолио
+  const [initialPortfolioValue, setInitialPortfolioValue] = useState<number>(0);
 
   useEffect(() => {
     const fetchCryptoRates = async () => {
@@ -25,15 +27,28 @@ const Header: React.FC = () => {
     fetchCryptoRates();
   }, []);
 
+  useEffect(() => {
+    const initialValue = portfolio.reduce((acc, coin) => acc + parseFloat(coin.priceUsd), 0);
+    setInitialPortfolioValue(initialValue);
+  }, [portfolio]);
+
+  const currentPortfolioValue = portfolio.reduce((acc, coin) => acc + parseFloat(coin.priceUsd), 0);
+  const portfolioChange = currentPortfolioValue - initialPortfolioValue;
+  const portfolioChangePercentage = ((portfolioChange / initialPortfolioValue) * 100).toFixed(2);
 
   return (
     <div className="header">
-      <div className="crypto-rates">
-        {cryptoRates.map(crypto => (
-          <div key={crypto.id} className="ticker">
-            <strong>{crypto.name}:</strong> ${crypto.priceUsd}
-          </div>
-        ))}
+      <div className="crypto-rates-container">
+        <div className="crypto-rates">
+          {cryptoRates.map(crypto => (
+            <div key={crypto.id} className="ticker">
+              <strong>{crypto.name}:</strong> ${crypto.priceUsd}
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="portfolio-value" onClick={onOpenPortfolio}>
+        {currentPortfolioValue.toFixed(2)} USD {portfolioChange >= 0 ? '+' : ''}{portfolioChange.toFixed(2)} ({portfolioChangePercentage}%)
       </div>
     </div>
   );

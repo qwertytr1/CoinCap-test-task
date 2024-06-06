@@ -1,11 +1,13 @@
+// App.tsx
 import React, { useState, useEffect } from 'react';
-import Header from './app/header/header';
-import PortfolioButton from './app/modul/PortfolioButton';
-import CoinTable from './app/coinTable';
-import PortfolioModal from './app/modul/modulPage';
-import AddCoinsModal from './app/modul/addCoins';
-import { CurrencyEntity } from './app/interfaces';
+import { Spin } from 'antd';
 import { httpGet } from './app/api/apiHandler';
+import Header from './app/header/header';
+import PortfolioModal from './app/modul/modulPage';
+import CoinTable from './app/coinTable';
+
+import { CurrencyEntity } from './app/interfaces';
+import AddCoinsModal from './app/modul/addCoins';
 
 const App: React.FC = () => {
   const [portfolioVisible, setPortfolioVisible] = useState<boolean>(false);
@@ -18,6 +20,17 @@ const App: React.FC = () => {
     fetchCryptoRates();
   }, []);
 
+  const fetchCryptoRates = async () => {
+    try {
+      const response = await httpGet<{ data: CurrencyEntity[] }>('/assets');
+      setCryptoRates(response.data.data);
+    } catch (error) {
+      console.error('Ошибка при получении списка криптовалют:', error);
+    }
+  };
+  const handleCloseAddCoinsModal = () => {
+    setAddCoinsModalVisible(false);
+};
   const handleOpenPortfolio = () => {
     setPortfolioVisible(true);
   };
@@ -32,15 +45,34 @@ const App: React.FC = () => {
     setAddCoinsModalVisible(true);
   };
 
-  const handleCloseAddCoinsModal = () => {
-    setAddCoinsModalVisible(false);
-  };
+  const handleAddCoins = async (selectedCoins: CurrencyEntity[], coinQuantities: { [key: string]: number }) => {
+    // Создаем копию текущего портфеля
+    const updatedPortfolio = [...portfolio];
 
-  const handleAddCoins = async (selectedCoins: CurrencyEntity[]) => {
-    const updatedPortfolio = [...portfolio, ...selectedCoins];
+    // Проходимся по выбранным монетам
+    selectedCoins.forEach(coin => {
+      // Проверяем, существует ли монета уже в портфеле
+      const existingCoinIndex = updatedPortfolio.findIndex(portfolioCoin => portfolioCoin.id === coin.id);
+
+      // Если монета уже есть, добавляем к существующему количеству
+      if (existingCoinIndex !== -1) {
+        updatedPortfolio[existingCoinIndex].quantity += coinQuantities[coin.id] || 0;
+      } else {
+        // Если монета новая, добавляем ее в портфель с указанным количеством
+        updatedPortfolio.push({
+          ...coin,
+          quantity: coinQuantities[coin.id] || 0
+        });
+      }
+    });
+
     setPortfolio(updatedPortfolio);
-    setPortfolioVisible(true);
+
+    const totalPortfolioValue = updatedPortfolio.reduce((acc, coin) => acc + (parseFloat(coin.priceUsd) * (coin.quantity || 0)), 0);
+    console.log('Общая стоимость портфеля:', totalPortfolioValue);
+
     setAddCoinsModalVisible(false);
+    setPortfolioVisible(true);
   };
 
   const handleDeleteCoin = (id: string) => {
@@ -48,17 +80,7 @@ const App: React.FC = () => {
     setPortfolio(updatedPortfolio);
   };
 
-  const fetchCryptoRates = async () => {
-    try {
-      const response = await httpGet<{ data: CurrencyEntity[] }>('/assets');
-      setCryptoRates(response.data.data);
-    } catch (error) {
-      console.error('Ошибка при получении списка криптовалют:', error);
-    }
-  };
-
   const handleAddToPortfolio = (coin: CurrencyEntity) => {
-    // Проверяем, если монета уже есть в портфеле, то не добавляем
     if (!portfolio.some(portfolioCoin => portfolioCoin.id === coin.id)) {
       const updatedPortfolio = [...portfolio, coin];
       setPortfolio(updatedPortfolio);
@@ -67,13 +89,7 @@ const App: React.FC = () => {
 
   return (
     <div className="App">
-      <Header />
-      <PortfolioButton
-        cryptoRates={cryptoRates}
-        onOpenAddCoinsModal={handleOpenAddCoinsModal}
-        onAddToPortfolio={handleAddToPortfolio}
-        onOpenPortfolio={handleOpenPortfolio}
-      />
+      <Header portfolio={portfolio} onOpenPortfolio={handleOpenPortfolio} />
       <PortfolioModal
         visible={portfolioVisible}
         onClose={handleClosePortfolio}
@@ -83,8 +99,8 @@ const App: React.FC = () => {
       <CoinTable
         portfolio={portfolio}
         onAddToPortfolio={handleAddToPortfolio}
-        onDeleteCoin={handleDeleteCoin} // Передаем функцию удаления
-      />
+        onDeleteCoin={handleDeleteCoin}
+       />
       <AddCoinsModal
         open={addCoinsModalVisible}
         onClose={handleCloseAddCoinsModal}
