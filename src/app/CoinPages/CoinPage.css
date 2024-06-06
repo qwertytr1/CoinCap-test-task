@@ -1,0 +1,14 @@
+/* CoinPage.css */
+.coin-page {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+.coin-info {
+    width: 40%;
+}
+
+.coin-chart {
+    width: 60%;
+}

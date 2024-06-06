@@ -1,0 +1,33 @@
+.coinLogo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.coinLogo img {
+  display: block; /* Делаем изображение блочным элементом */
+  margin: 0 auto; /* Центрируем изображение по горизонтали */
+  max-width: 100%; /* Устанавливаем максимальную ширину изображения */
+  max-height: 50px; /* Устанавливаем максимальную высоту изображения */
+}
+
+.coinButton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px; /* Добавляем небольшой отступ сверху */
+}
+
+.coinButton button {
+  /* Ваши стили для кнопки */
+  padding: 8px 16px; /* Задаем отступы вокруг текста кнопки */
+  background-color: #1890ff; /* Цвет фона кнопки */
+  color: #fff; /* Цвет текста кнопки */
+  border: none; /* Убираем границу кнопки */
+  border-radius: 4px; /* Закругляем углы кнопки */
+  cursor: pointer; /* Устанавливаем указатель мыши */
+}
+
+.coinButton button:hover {
+  background-color: #40a9ff; /* Цвет фона кнопки при наведении */
+}

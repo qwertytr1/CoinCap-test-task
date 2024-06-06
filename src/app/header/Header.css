@@ -1,0 +1,51 @@
+.header {
+  display: flex;
+  justify-content: space-between; /* Обновлено: центрирование контента */
+  align-items: center;
+  height: 60px; /* Обновлено: увеличена высота */
+  background-color: #1a1a1a; /* Обновлено: тёмный фон */
+  color: #ffffff; /* Обновлено: белый текст */
+  padding: 0 20px; /* Обновлено: добавлен внутренний отступ */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Добавлено: тень */
+
+  overflow: hidden;
+}
+
+.crypto-rates {
+  display: flex;
+  white-space: nowrap;
+  animation: marquee 50s linear infinite;
+}
+
+.ticker {
+  display: inline-block;
+  padding: 0 15px;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.crypto-rates-container {
+  overflow: hidden;
+  flex-grow: 1;
+}
+
+.portfolio-value {
+  cursor: pointer;
+  font-weight: bold;
+  background-color: #ff9800;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.portfolio-value:hover {
+  background-color: #fb8c00; /* Добавлено: цвет при наведении */
+}

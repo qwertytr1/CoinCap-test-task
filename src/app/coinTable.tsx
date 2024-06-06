@@ -4,26 +4,40 @@ import { httpGet } from './api/apiHandler';
 import CoinSearch from './CoinTableElement/coinSearch';
 import CoinTableContent from './CoinTableElement/coinTableContent';
 import CoinPage from './CoinPages/CoinPage';
+import PortfolioModal from './modul/modulPage';
 import { useParams } from 'react-router-dom';
 import { CurrencyEntity } from './interfaces';
 
-const CoinTable = () => {
+interface CoinTableProps {
+  portfolio: CurrencyEntity[];
+  onAddToPortfolio: (coin: CurrencyEntity) => void;
+  onDeleteCoin: (id: string) => void;
+  totalPortfolioValue: number;
+}
+
+const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDeleteCoin, totalPortfolioValue }) => {
   const { coinId } = useParams();
   const [coins, setCoins] = useState<CurrencyEntity[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCoin, setSelectedCoin] = useState<CurrencyEntity | null>(null);
   const [searchValue, setSearchValue] = useState('');
+  const [portfolioVisible, setPortfolioVisible] = useState<boolean>(false);
+  const [addCoinsModalVisible, setAddCoinsModalVisible] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(100);
+  const [totalCoins, setTotalCoins] = useState<number>(0);
 
   useEffect(() => {
-    fetchCoins();
-  }, []);
+    fetchCoins(currentPage, pageSize);
+  }, [currentPage, pageSize]);
 
-  const fetchCoins = async () => {
+  const fetchCoins = async (page: number, limit: number) => {
     setLoading(true);
     try {
-      const response = await httpGet('/assets');
-      const responseData = response.data as { data: CurrencyEntity[] }; // Приведение типа
+      const response = await httpGet(`/assets?page=${page}&limit=${limit}`);
+      const responseData = response.data as { data: CurrencyEntity[], total: number };
       setCoins(responseData.data);
+      setTotalCoins(responseData.total);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching coins:', error);
@@ -44,7 +58,38 @@ const CoinTable = () => {
 
   const handleSearch = (value: string) => {
     setSearchValue(value);
+    fetchCoins(currentPage, pageSize);
   };
+
+  const handleOpenPortfolio = () => {
+    setPortfolioVisible(true);
+  };
+
+  const handleClosePortfolio = () => {
+    setPortfolioVisible(false);
+  };
+
+  const handleOpenAddCoinsModal = () => {
+    setAddCoinsModalVisible(true);
+  };
+
+  const handleCloseAddCoinsModal = () => {
+    setAddCoinsModalVisible(false);
+  };
+
+  const handleTableChange = (pagination: any, filters: any, sorter: any) => {
+    if (pagination.pageSize !== pageSize) {
+      setPageSize(pagination.pageSize);
+    }
+    if (pagination.current !== currentPage) {
+      setCurrentPage(pagination.current);
+    }
+    // Handle sorter change
+  };
+
+  const filteredCoins = coins.filter(coin =>
+    coin.name.toLowerCase().includes(searchValue.toLowerCase())
+  );
 
   return (
     <div style={{ width: '80%', margin: 'auto' }}>
@@ -52,12 +97,28 @@ const CoinTable = () => {
       {loading ? (
         <Spin />
       ) : selectedCoin ? (
-        <CoinPage coin={selectedCoin} onClose={handleCloseCoinInfo} />
+        <CoinPage coin={selectedCoin} onClose={handleCloseCoinInfo} onAddToPortfolio={onAddToPortfolio} />
       ) : (
-<CoinTableContent
-  coins={coins}
-  onSelectCoin={handleSelectCoin}
-/>
+        <>
+          <CoinTableContent
+            coins={filteredCoins}
+            onSelectCoin={handleSelectCoin}
+            onAddToPortfolio={onAddToPortfolio}
+            onOpenAddCoinsModal={handleOpenAddCoinsModal}
+            onOpenPortfolio={handleOpenPortfolio}
+            onTableChange={handleTableChange}
+            total={totalCoins}
+            pageSize={pageSize}
+            currentPage={currentPage}
+          />
+          <PortfolioModal
+            totalPortfolioValue={totalPortfolioValue}
+            visible={portfolioVisible}
+            onClose={handleClosePortfolio}
+            portfolio={portfolio}
+            onDelete={onDeleteCoin}
+          />
+        </>
       )}
     </div>
   );
