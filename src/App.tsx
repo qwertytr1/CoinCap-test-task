@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Spin } from 'antd';
 import { httpGet } from './app/api/apiHandler';
 import Header from './app/header/header';
 import PortfolioModal from './app/modul/modulPage';
@@ -63,12 +62,6 @@ const App: React.FC = () => {
 
   const handleClosePortfolio = () => {
     setPortfolioVisible(false);
-  };
-
-  const handleOpenAddCoinsModal = () => {
-    const selectedCoins = cryptoRates.filter(coin => !portfolio.some(portfolioCoin => portfolioCoin.id === coin.id));
-    setSelectedCoinsToAdd(selectedCoins);
-    setAddCoinsModalVisible(true);
   };
 
   const handleAddToPortfolio = (coin: CurrencyEntity) => {
