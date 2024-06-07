@@ -5,8 +5,8 @@ import { Chart, CategoryScale, LinearScale, PointElement, LineElement, Title, To
 import { CurrencyEntity } from '../interfaces';
 import { httpGet } from '../api/apiHandler';
 import { format, fromUnixTime } from 'date-fns';
-import './CoinPage.css';
-import AddCoinsModal from '../modul/addCoins'; // Импортируем компонент модального окна для добавления монет
+import './CoinPage.scss';
+import AddCoinsModal from '../modul/addCoins';
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -22,44 +22,39 @@ interface ChartApiResponse {
     data: ChartDataPoint[];
 }
 
-const CoinPage = ({ coin, onClose, onAddToPortfolio }: { coin: CurrencyEntity; onClose: () => void; onAddToPortfolio: (coin: CurrencyEntity) => void }) => {
-    const [chartData, setChartData] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
+interface CoinPageProps {
+    coin: CurrencyEntity;
+    onClose: () => void;
+    onAddToPortfolio: (coin: CurrencyEntity) => void;
+    chartData?: {
+        labels: string[];
+        datasets: {
+            label: string;
+            data: number[];
+            borderColor: string;
+            fill: boolean;
+        }[];
+    };
+}
+
+const CoinPage: React.FC<CoinPageProps> = ({ coin, onClose, onAddToPortfolio, chartData: initialChartData }) => {
+    const [chartData, setChartData] = useState(initialChartData || null);
+    const [loading, setLoading] = useState(!initialChartData);
     const [error, setError] = useState('');
     const [timeRange, setTimeRange] = useState('d1');
     const [addCoinsModalVisible, setAddCoinsModalVisible] = useState(false);
 
     const fetchChartData = async (range: string) => {
+        if (initialChartData) return;
+
         setLoading(true);
         setError('');
         try {
             const response = await httpGet<ChartApiResponse>(`/assets/${coin.id}/history?interval=${range}`);
             const data = response.data.data;
 
-            let timeFormat:string;
-            switch(range) {
-                case 'd1':
-                    timeFormat = 'dd.MM.yyyy';
-                    break;
-                case 'h12':
-                    timeFormat = 'HH:mm';
-                    break;
-                case 'h1':
-                    timeFormat = 'HH:mm';
-                    break;
-                default:
-                    timeFormat = 'HH:mm';
-            }
-
             const formattedData = {
-                labels: data.map(entry => {
-                    if (range === 'd1') {
-                        const date = fromUnixTime(entry.time / 1000);
-                        return format(date, timeFormat);
-                    } else {
-                        return format(fromUnixTime(entry.time / 1000), timeFormat);
-                    }
-                }),
+                labels: data.map(entry => format(fromUnixTime(entry.time / 1000), 'dd.MM.yyyy')),
                 datasets: [
                     {
                         label: `Цена ${coin.name} в USD`,
@@ -80,22 +75,24 @@ const CoinPage = ({ coin, onClose, onAddToPortfolio }: { coin: CurrencyEntity; o
     };
 
     useEffect(() => {
-        const savedData = localStorage.getItem(`chartData_${coin.id}_${timeRange}`);
-        if (savedData) {
-            setChartData(JSON.parse(savedData));
-            setLoading(false);
-        } else {
-            fetchChartData(timeRange);
+        if (!initialChartData) {
+            const savedData = localStorage.getItem(`chartData_${coin.id}_${timeRange}`);
+            if (savedData) {
+                setChartData(JSON.parse(savedData));
+                setLoading(false);
+            } else {
+                fetchChartData(timeRange);
+            }
         }
-    }, [coin.id, timeRange]);
+    }, [coin.id, timeRange, initialChartData]);
 
     const handleTimeRangeChange = (value: string) => {
         setTimeRange(value);
     };
 
     const handleAddToPortfolio = (coins: CurrencyEntity[]) => {
-        coins.forEach(onAddToPortfolio); // Передаем выбранную монету в родительский компонент
-        setAddCoinsModalVisible(false); // Закрываем модальное окно
+        coins.forEach(onAddToPortfolio);
+        setAddCoinsModalVisible(false);
     };
 
     return (
@@ -118,8 +115,8 @@ const CoinPage = ({ coin, onClose, onAddToPortfolio }: { coin: CurrencyEntity; o
                     <Option value="h12">12 часов</Option>
                     <Option value="h1">1 час</Option>
                 </Select>
-                <Button onClick={onClose}>Назад</Button>
-                <Button type="primary" onClick={() => setAddCoinsModalVisible(true)}>Добавить</Button>
+                <Button onClick={onClose} style={{ marginTop: '10px' }}>Назад</Button>
+                <Button type="primary" onClick={() => setAddCoinsModalVisible(true)} style={{ marginTop: '10px' }}>Добавить</Button>
             </div>
             <div className="coin-chart">
                 {loading ? (
@@ -133,17 +130,17 @@ const CoinPage = ({ coin, onClose, onAddToPortfolio }: { coin: CurrencyEntity; o
                                 display: true,
                                 title: {
                                     display: true,
-                                    text: timeRange === 'd1' ? 'Дата' : 'Время'
-                                }
+                                    text: 'Дата',
+                                },
                             },
                             y: {
                                 display: true,
                                 title: {
                                     display: true,
-                                    text: 'Цена в USD'
-                                }
-                            }
-                        }
+                                    text: 'Цена в USD',
+                                },
+                            },
+                        },
                     }} />
                 ) : null}
             </div>

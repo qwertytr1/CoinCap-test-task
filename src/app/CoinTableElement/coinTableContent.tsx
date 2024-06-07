@@ -11,7 +11,7 @@ interface CoinTableContentProps {
   coins: CurrencyEntity[];
   onSelectCoin: (coinId: string) => void;
   onAddToPortfolio: (coin: CurrencyEntity) => void;
-  onOpenAddCoinsModal: () => void;
+  onOpenAddCoinsModal: (coin: CurrencyEntity) => void; // Обновлено для передачи выбранной монеты
   onOpenPortfolio: () => void;
   onTableChange: (pagination: any, filters: any, sorter: any) => void;
   total: number;
@@ -33,6 +33,11 @@ const CoinTableContent: React.FC<CoinTableContentProps> = ({
   const uniqueCoins = Array.from(new Set(coins.map((coin) => coin.id))).map(
     (id) => coins.find((coin) => coin.id === id) as CurrencyEntity
   );
+
+  const handleButtonClick = (event: React.MouseEvent, coin: CurrencyEntity) => {
+    event.stopPropagation();
+    onOpenAddCoinsModal(coin);
+  };
 
   return (
     <div className={styles.tableContainer}>
@@ -77,29 +82,38 @@ const CoinTableContent: React.FC<CoinTableContentProps> = ({
           title="Цена в USD"
           dataIndex="priceUsd"
           key="priceUsd"
-          render={(value: string) => <div>${formatValue(value)}</div>}
-          sorter={(a:CurrencyEntity, b:CurrencyEntity) => parseFloat(a.priceUsd) - parseFloat(b.priceUsd)}
+          render={(value: string) => {
+            const parsedValue = parseFloat(value);
+            return parsedValue !== 0 ? <div>${formatValue(value)}</div> : null;
+          }}
+          sorter={(a: CurrencyEntity, b: CurrencyEntity) => parseFloat(a.priceUsd) - parseFloat(b.priceUsd)}
         />
         <Column
           title="Рыночная капитализация в USD"
           dataIndex="marketCapUsd"
           key="marketCapUsd"
-          render={(value: string) => <div>${formatValue(value)}</div>}
-          sorter={(a:CurrencyEntity, b:CurrencyEntity) => parseFloat(a.marketCapUsd) - parseFloat(b.marketCapUsd)}
+          render={(value: string) => {
+            const parsedValue = parseFloat(value);
+            return parsedValue !== 0 ? <div>${formatValue(value)}</div> : null;
+          }}
+          sorter={(a: CurrencyEntity, b: CurrencyEntity) => parseFloat(a.marketCapUsd) - parseFloat(b.marketCapUsd)}
         />
         <Column
           title="Изменение за 24 часа (%)"
           dataIndex="changePercent24Hr"
           key="changePercent24Hr"
-          render={(value: string) => <div>{Number(value).toFixed(2)}%</div>}
-          sorter={(a:CurrencyEntity, b:CurrencyEntity) => parseFloat(a.changePercent24Hr) - parseFloat(b.changePercent24Hr)}
+          render={(value: string) => {
+            const parsedValue = parseFloat(value);
+            return parsedValue !== 0 ? <div>{Number(value).toFixed(2)}%</div> : null;
+          }}
+          sorter={(a: CurrencyEntity, b: CurrencyEntity) => parseFloat(a.changePercent24Hr) - parseFloat(b.changePercent24Hr)}
         />
         <Column
           title="Действие"
           key="action"
           render={(record: CurrencyEntity) => (
             <div className={styles.coinButton}>
-              <Button onClick={onOpenAddCoinsModal}>Добавить монету</Button>
+              <Button onClick={(event) => handleButtonClick(event, record)}>Добавить монету</Button>
             </div>
           )}
         />
@@ -109,3 +123,4 @@ const CoinTableContent: React.FC<CoinTableContentProps> = ({
 };
 
 export default CoinTableContent;
+export type {CoinTableContentProps}

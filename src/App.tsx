@@ -76,14 +76,14 @@ const App: React.FC = () => {
     const existingCoinIndex = updatedPortfolio.findIndex(portfolioCoin => portfolioCoin.id === coin.id);
 
     if (existingCoinIndex !== -1) {
-      // Валидация
+
       if (coin.quantity < 0.01 || coin.quantity > 1000) {
         alert('Количество монет должно быть в диапазоне от 0.01 до 1000');
         return;
       }
       updatedPortfolio[existingCoinIndex].quantity += coin.quantity;
     } else {
-      // Установка цены покупки и валидация
+
       if (coin.quantity < 0.01 || coin.quantity > 1000) {
         alert('Количество монет должно быть в диапазоне от 0.01 до 1000');
         return;

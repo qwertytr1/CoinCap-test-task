@@ -26,4 +26,13 @@ export interface NormalizedCurrencyEntity {
 export interface UseStore {
         allCurrencies: NormalizedCurrencyEntity | undefined;
         isLoading: boolean;
-    }
+}
+export interface CustomChartData {
+  labels: string[];
+  datasets: {
+    label: string;
+    data: number[];
+    borderColor: string;
+    fill: boolean;
+  }[];
+}
