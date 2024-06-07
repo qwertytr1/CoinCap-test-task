@@ -6,7 +6,6 @@ import CoinTableContent from './CoinTableElement/coinTableContent';
 import CoinPage from './CoinPages/CoinPage';
 import PortfolioModal from './modul/modulPage';
 import AddCoinsModal from './modul/addCoins';
-import { useParams } from 'react-router-dom';
 import { CurrencyEntity } from './interfaces';
 
 interface CoinTableProps {
