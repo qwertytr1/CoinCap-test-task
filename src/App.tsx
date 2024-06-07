@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { httpGet } from './app/api/apiHandler';
 import Header from './app/header/header';
 import PortfolioModal from './app/modul/modulPage';
 import CoinTable from './app/coinTable';
-
 import { CurrencyEntity } from './app/interfaces';
 import AddCoinsModal from './app/modul/addCoins';
 
@@ -13,30 +12,12 @@ const App: React.FC = () => {
     const savedPortfolio = localStorage.getItem('portfolio');
     return savedPortfolio ? JSON.parse(savedPortfolio) : [];
   });
-  const [cryptoRates, setCryptoRates] = useState<CurrencyEntity[]>([]);
+  const [, setCryptoRates] = useState<CurrencyEntity[]>([]);
+  const [selectedCoinsToAdd] = useState<CurrencyEntity[]>([]);
   const [addCoinsModalVisible, setAddCoinsModalVisible] = useState<boolean>(false);
-  const [selectedCoinsToAdd, setSelectedCoinsToAdd] = useState<CurrencyEntity[]>([]);
   const [totalPortfolioValue, setTotalPortfolioValue] = useState<number>(0);
 
-  useEffect(() => {
-    fetchCryptoRates();
-    setTotalPortfolioValue(calculatePortfolioValue(portfolio));
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('portfolio', JSON.stringify(portfolio));
-    setTotalPortfolioValue(calculatePortfolioValue(portfolio));
-  }, [portfolio]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetchCryptoRates();
-    }, 60000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const fetchCryptoRates = async () => {
+  const fetchCryptoRates = useCallback(async () => {
     try {
       const response = await httpGet<{ data: CurrencyEntity[] }>('/assets');
       setCryptoRates(response.data.data);
@@ -50,7 +31,24 @@ const App: React.FC = () => {
     } catch (error) {
       console.error('Ошибка при получении списка криптовалют:', error);
     }
-  };
+  }, [ portfolio]);
+  useEffect(() => {
+    localStorage.setItem('portfolio', JSON.stringify(portfolio));
+    setTotalPortfolioValue(calculatePortfolioValue(portfolio));
+  }, [portfolio]);
+
+  useEffect(() => {
+    fetchCryptoRates();
+    setTotalPortfolioValue(calculatePortfolioValue(portfolio));// eslint-disable-next-line
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchCryptoRates();
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, [fetchCryptoRates]);
 
   const calculatePortfolioValue = (portfolio: CurrencyEntity[]) => {
     return portfolio.reduce((acc, coin) => acc + (parseFloat(coin.priceUsd) * (coin.quantity || 0)), 0);
@@ -69,21 +67,18 @@ const App: React.FC = () => {
     const existingCoinIndex = updatedPortfolio.findIndex(portfolioCoin => portfolioCoin.id === coin.id);
 
     if (existingCoinIndex !== -1) {
-
       if (coin.quantity < 0.01 || coin.quantity > 1000) {
         alert('Количество монет должно быть в диапазоне от 0.01 до 1000');
         return;
       }
       updatedPortfolio[existingCoinIndex].quantity += coin.quantity;
     } else {
-
       if (coin.quantity < 0.01 || coin.quantity > 1000) {
         alert('Количество монет должно быть в диапазоне от 0.01 до 1000');
         return;
       }
       updatedPortfolio.push({ ...coin, purchasePrice: parseFloat(coin.priceUsd) });
     }
-
     setPortfolio(updatedPortfolio);
   };
 
