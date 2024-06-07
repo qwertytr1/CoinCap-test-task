@@ -17,7 +17,6 @@ interface CoinTableProps {
 }
 
 const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDeleteCoin, totalPortfolioValue }) => {
-  const { coinId } = useParams();
   const [coins, setCoins] = useState<CurrencyEntity[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCoin, setSelectedCoin] = useState<CurrencyEntity | null>(null);
