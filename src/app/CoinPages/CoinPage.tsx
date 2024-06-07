@@ -44,37 +44,37 @@ const CoinPage: React.FC<CoinPageProps> = ({ coin, onClose, onAddToPortfolio, ch
     const [timeRange, setTimeRange] = useState('d1');
     const [addCoinsModalVisible, setAddCoinsModalVisible] = useState(false);
 
-    const fetchChartData = async (range: string) => {
-        if (initialChartData) return;
-
-        setLoading(true);
-        setError('');
-        try {
-            const response = await httpGet<ChartApiResponse>(`/assets/${coin.id}/history?interval=${range}`);
-            const data = response.data.data;
-
-            const formattedData = {
-                labels: data.map(entry => format(fromUnixTime(entry.time / 1000), 'dd.MM.yyyy')),
-                datasets: [
-                    {
-                        label: `Цена ${coin.name} в USD`,
-                        data: data.map(entry => parseFloat(entry.priceUsd)),
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        fill: false,
-                    },
-                ],
-            };
-
-            setChartData(formattedData);
-            localStorage.setItem(`chartData_${coin.id}_${range}`, JSON.stringify(formattedData));
-        } catch (error) {
-            setError('Ошибка при загрузке данных графика.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
     useEffect(() => {
+        const fetchChartData = async (range: string) => {
+            if (initialChartData) return;
+
+            setLoading(true);
+            setError('');
+            try {
+                const response = await httpGet<ChartApiResponse>(`/assets/${coin.id}/history?interval=${range}`);
+                const data = response.data.data;
+
+                const formattedData = {
+                    labels: data.map(entry => format(fromUnixTime(entry.time / 1000), 'dd.MM.yyyy')),
+                    datasets: [
+                        {
+                            label: `Цена ${coin.name} в USD`,
+                            data: data.map(entry => parseFloat(entry.priceUsd)),
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            fill: false,
+                        },
+                    ],
+                };
+
+                setChartData(formattedData);
+                localStorage.setItem(`chartData_${coin.id}_${range}`, JSON.stringify(formattedData));
+            } catch (error) {
+                setError('Ошибка при загрузке данных графика.');
+            } finally {
+                setLoading(false);
+            }
+        };
+
         if (!initialChartData) {
             const savedData = localStorage.getItem(`chartData_${coin.id}_${timeRange}`);
             if (savedData) {
@@ -84,7 +84,7 @@ const CoinPage: React.FC<CoinPageProps> = ({ coin, onClose, onAddToPortfolio, ch
                 fetchChartData(timeRange);
             }
         }
-    }, [coin.id, timeRange, initialChartData]);
+    }, [coin.id, coin.name, timeRange, initialChartData]);
 
     const handleTimeRangeChange = (value: string) => {
         setTimeRange(value);
