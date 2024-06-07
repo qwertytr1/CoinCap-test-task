@@ -5,6 +5,7 @@ import CoinSearch from './CoinTableElement/coinSearch';
 import CoinTableContent from './CoinTableElement/coinTableContent';
 import CoinPage from './CoinPages/CoinPage';
 import PortfolioModal from './modul/modulPage';
+import AddCoinsModal from './modul/addCoins';
 import { useParams } from 'react-router-dom';
 import { CurrencyEntity } from './interfaces';
 
@@ -23,6 +24,7 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
   const [searchValue, setSearchValue] = useState('');
   const [portfolioVisible, setPortfolioVisible] = useState<boolean>(false);
   const [addCoinsModalVisible, setAddCoinsModalVisible] = useState<boolean>(false);
+  const [coinForAdd, setCoinForAdd] = useState<CurrencyEntity | null>(null); // Состояние для выбранной монеты
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(100);
   const [totalCoins, setTotalCoins] = useState<number>(0);
@@ -69,12 +71,14 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
     setPortfolioVisible(false);
   };
 
-  const handleOpenAddCoinsModal = () => {
+  const handleOpenAddCoinsModal = (coin: CurrencyEntity) => {
+    setCoinForAdd(coin);
     setAddCoinsModalVisible(true);
   };
 
   const handleCloseAddCoinsModal = () => {
     setAddCoinsModalVisible(false);
+    setCoinForAdd(null);
   };
 
   const handleTableChange = (pagination: any, filters: any, sorter: any) => {
@@ -84,7 +88,11 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
     if (pagination.current !== currentPage) {
       setCurrentPage(pagination.current);
     }
+  };
 
+  const handleAddToPortfolio = (coins: CurrencyEntity[]) => {
+    coins.forEach(onAddToPortfolio);
+    setAddCoinsModalVisible(false);
   };
 
   const filteredCoins = coins.filter(coin =>
@@ -104,7 +112,7 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
             coins={filteredCoins}
             onSelectCoin={handleSelectCoin}
             onAddToPortfolio={onAddToPortfolio}
-            onOpenAddCoinsModal={handleOpenAddCoinsModal}
+            onOpenAddCoinsModal={handleOpenAddCoinsModal} // Передаем функцию для открытия модального окна с выбранной монетой
             onOpenPortfolio={handleOpenPortfolio}
             onTableChange={handleTableChange}
             total={totalCoins}
@@ -118,6 +126,14 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
             portfolio={portfolio}
             onDelete={onDeleteCoin}
           />
+          {coinForAdd && (
+            <AddCoinsModal
+              open={addCoinsModalVisible}
+              onClose={handleCloseAddCoinsModal}
+              coins={[coinForAdd]}
+              onAddCoins={handleAddToPortfolio}
+            />
+          )}
         </>
       )}
     </div>

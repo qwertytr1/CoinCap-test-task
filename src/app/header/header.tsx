@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { httpGet } from '../api/apiHandler';
 import { CurrencyEntity } from '../interfaces';
-import './Header.css';
+import './Header.scss';
 
 interface HeaderProps {
   portfolio: CurrencyEntity[];

@@ -1,4 +1,4 @@
-/* CoinPage.scss */
+
 .coin-page {
     display: flex;
     flex-direction: column;
@@ -67,12 +67,12 @@
             margin-left: 10px;
 
             &:first-child {
-                margin-top: 10px; /* Отступ сверху для первой кнопки */
-                margin-left: 0; /* Убираем отступ слева у первой кнопки */
+                margin-top: 10px;
+                margin-left: 0;
             }
 
             &:last-child {
-                margin-top: 10px; /* Отступ сверху для последней кнопки */
+                margin-top: 10px;
                 margin-right: 0;
             }
         }
