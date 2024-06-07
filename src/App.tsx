@@ -31,17 +31,21 @@ const App: React.FC = () => {
     } catch (error) {
       console.error('Ошибка при получении списка криптовалют:', error);
     }
-  }, [ portfolio]);
+  }, [portfolio]);
+
   useEffect(() => {
     localStorage.setItem('portfolio', JSON.stringify(portfolio));
     setTotalPortfolioValue(calculatePortfolioValue(portfolio));
   }, [portfolio]);
 
   useEffect(() => {
-    fetchCryptoRates();
-    setTotalPortfolioValue(calculatePortfolioValue(portfolio));// eslint-disable-next-line
-  }, []);
-
+    if (portfolioVisible && !portfolio.length) {
+      fetchCryptoRates();
+    }
+  }, [fetchCryptoRates, portfolio, portfolioVisible]);
+  useEffect(() => {
+    setTotalPortfolioValue(calculatePortfolioValue(portfolio));
+  }, [portfolio]);
   useEffect(() => {
     const interval = setInterval(() => {
       fetchCryptoRates();
@@ -63,25 +67,29 @@ const App: React.FC = () => {
   };
 
   const handleAddToPortfolio = (coin: CurrencyEntity) => {
-    const updatedPortfolio = [...portfolio];
-    const existingCoinIndex = updatedPortfolio.findIndex(portfolioCoin => portfolioCoin.id === coin.id);
-
-    if (existingCoinIndex !== -1) {
-      if (coin.quantity < 0.01 || coin.quantity > 1000) {
-        alert('Количество монет должно быть в диапазоне от 0.01 до 1000');
-        return;
-      }
-      updatedPortfolio[existingCoinIndex].quantity += coin.quantity;
-    } else {
-      if (coin.quantity < 0.01 || coin.quantity > 1000) {
-        alert('Количество монет должно быть в диапазоне от 0.01 до 1000');
-        return;
-      }
-      updatedPortfolio.push({ ...coin, purchasePrice: parseFloat(coin.priceUsd) });
+    if (coin.quantity < 0.01 || coin.quantity > 1000) {
+      alert('Количество монет должно быть в диапазоне от 0.01 до 1000');
+      return;
     }
-    setPortfolio(updatedPortfolio);
-  };
 
+    const existingCoin = portfolio.find(portfolioCoin => portfolioCoin.id === coin.id);
+
+    if (existingCoin) {
+      const updatedPortfolio = portfolio.map(portfolioCoin => {
+        if (portfolioCoin.id === coin.id) {
+          return {
+            ...portfolioCoin,
+            quantity: portfolioCoin.quantity + coin.quantity,
+          };
+        }
+        return portfolioCoin;
+      });
+
+      setPortfolio(updatedPortfolio);
+    } else {
+      setPortfolio(prevPortfolio => [...prevPortfolio, { ...coin, purchasePrice: parseFloat(coin.priceUsd) }]);
+    }
+  };
   const handleCloseAddCoinsModal = () => {
     setAddCoinsModalVisible(false);
   };
