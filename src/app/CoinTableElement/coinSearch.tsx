@@ -4,7 +4,7 @@ import { SearchOutlined } from '@ant-design/icons';
 
 const { Search } = Input;
 
-interface CoinSearchProps {
+export interface CoinSearchProps {
   searchValue: string;
   handleSearch: (value: string) => void;
 }
@@ -22,4 +22,3 @@ const CoinSearch: React.FC<CoinSearchProps> = ({ searchValue, handleSearch }) =>
 };
 
 export default CoinSearch;
-export type { CoinSearchProps };

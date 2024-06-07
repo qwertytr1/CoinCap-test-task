@@ -1,8 +1,7 @@
-
-
 import React from 'react';
 import { Meta, StoryFn } from '@storybook/react';
 import CoinTableContent, { CoinTableContentProps } from '../app/CoinTableElement/coinTableContent';
+import { CurrencyEntity } from '../app/interfaces';
 
 export default {
   title: 'CoinTableContent',
@@ -34,7 +33,7 @@ Default.args = {
   onSelectCoin: (coinId: string) => {
     console.log('Selected coin:', coinId);
   },
-  onAddToPortfolio: (coin) => {
+  onAddToPortfolio: (coin: CurrencyEntity) => {
     console.log('Adding to portfolio:', coin);
   },
   onOpenAddCoinsModal: () => {

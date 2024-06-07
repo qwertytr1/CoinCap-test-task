@@ -22,14 +22,31 @@ interface ChartApiResponse {
     data: ChartDataPoint[];
 }
 
-const CoinPage = ({ coin, onClose, onAddToPortfolio }: { coin: CurrencyEntity; onClose: () => void; onAddToPortfolio: (coin: CurrencyEntity) => void }) => {
-    const [chartData, setChartData] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
+interface CoinPageProps {
+    coin: CurrencyEntity;
+    onClose: () => void;
+    onAddToPortfolio: (coin: CurrencyEntity) => void;
+    chartData?: {
+        labels: string[];
+        datasets: {
+            label: string;
+            data: number[];
+            borderColor: string;
+            fill: boolean;
+        }[];
+    };
+}
+
+const CoinPage: React.FC<CoinPageProps> = ({ coin, onClose, onAddToPortfolio, chartData: initialChartData }) => {
+    const [chartData, setChartData] = useState(initialChartData || null);
+    const [loading, setLoading] = useState(!initialChartData);
     const [error, setError] = useState('');
     const [timeRange, setTimeRange] = useState('d1');
     const [addCoinsModalVisible, setAddCoinsModalVisible] = useState(false);
 
     const fetchChartData = async (range: string) => {
+        if (initialChartData) return;
+
         setLoading(true);
         setError('');
         try {
@@ -58,14 +75,16 @@ const CoinPage = ({ coin, onClose, onAddToPortfolio }: { coin: CurrencyEntity; o
     };
 
     useEffect(() => {
-        const savedData = localStorage.getItem(`chartData_${coin.id}_${timeRange}`);
-        if (savedData) {
-            setChartData(JSON.parse(savedData));
-            setLoading(false);
-        } else {
-            fetchChartData(timeRange);
+        if (!initialChartData) {
+            const savedData = localStorage.getItem(`chartData_${coin.id}_${timeRange}`);
+            if (savedData) {
+                setChartData(JSON.parse(savedData));
+                setLoading(false);
+            } else {
+                fetchChartData(timeRange);
+            }
         }
-    }, [coin.id, timeRange]);
+    }, [coin.id, timeRange, initialChartData]);
 
     const handleTimeRangeChange = (value: string) => {
         setTimeRange(value);
