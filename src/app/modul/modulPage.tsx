@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, Table, Modal, Typography } from 'antd';
 import { CurrencyEntity } from '../interfaces';
+import './PortfolioModal.scss';
 
 interface PortfolioModalProps {
   visible: boolean;
@@ -24,6 +25,7 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ visible, onClose, portf
       title: 'Символ',
       dataIndex: 'symbol',
       key: 'symbol',
+      className: 'hide-on-mobile',
     },
     {
       title: 'Цена в USD',
@@ -32,11 +34,13 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ visible, onClose, portf
       render: (text: string, record: CurrencyEntity) => (
         <span>${(parseFloat(record.priceUsd) * (record.quantity || 0)).toFixed(2)}</span>
       ),
+      className: 'hide-on-smallest',
     },
     {
       title: 'Количество',
       dataIndex: 'quantity',
       key: 'quantity',
+      className: 'hide-on-mobile',
     },
     {
       title: 'Действие',

@@ -98,7 +98,7 @@ const CoinPage: React.FC<CoinPageProps> = ({ coin, onClose, onAddToPortfolio, ch
     return (
         <div className="coin-page">
             <div className="coin-info">
-                <div style={{ display: 'flex', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' }}>
                     <img width={50} src={`https://assets.coincap.io/assets/icons/${coin.symbol.toLowerCase()}@2x.png`} alt="Логотип" />
                     <div>
                         <h1>{coin.name}</h1>

@@ -1,0 +1,32 @@
+.mainContainer {
+    width: 80%;
+    margin: auto;
+    padding: 20px;
+    overflow-x: hidden; // Prevent horizontal overflow
+
+    @media (max-width: 1000px) {
+      width: 85%;
+      padding: 20px;
+    }
+
+    @media (max-width: 900px) {
+      width: 90%;
+      padding: 15px;
+    }
+
+    @media (max-width: 850px) {
+      width: 92%;
+      padding: 15px;
+    }
+
+    @media (max-width: 770px) {
+      width: 95%;
+      padding: 15px;
+    }
+
+    @media (max-width: 480px) {
+      width:100%;
+      padding: 0px;
+      margin: 0px;
+      }
+      }
