@@ -26,37 +26,33 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
   const [portfolioVisible, setPortfolioVisible] = useState<boolean>(false);
   const [addCoinsModalVisible, setAddCoinsModalVisible] = useState<boolean>(false);
   const [coinForAdd, setCoinForAdd] = useState<CurrencyEntity | null>(null);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(100);
-  const [totalCoins, setTotalCoins] = useState<number>(0);
 
   useEffect(() => {
-    fetchCoins(currentPage, pageSize);
-  }, [currentPage, pageSize]);
+    fetchCoins();
+  }, []);
 
-  const fetchCoins = async (page: number, limit: number) => {
+  const fetchCoins = async () => {
     setLoading(true);
     try {
-      const response = await httpGet(`/assets?page=${page}&limit=${limit}`);
-      const responseData = response.data as { data: CurrencyEntity[], total: number };
+      const response = await httpGet(`/assets`);
+      const responseData = response.data as { data: CurrencyEntity[] };
       setCoins(responseData.data);
-      setTotalCoins(responseData.total);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching coins:', error);
       setLoading(false);
     }
-  };
+  }
 
   const debouncedFetchCoins = useCallback(
     debounce((value: string) => {
       setSearchLoading(true);
       setTimeout(async () => {
-        await fetchCoins(currentPage, pageSize);
+        await fetchCoins();
         setSearchLoading(false);
       }, 500);  // Added timeout to simulate search loading
     }, 500),
-    [currentPage, pageSize]
+    []
   );
 
   useEffect(() => {
@@ -96,15 +92,6 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
     setCoinForAdd(null);
   };
 
-  const handleTableChange = (pagination: any, filters: any, sorter: any) => {
-    if (pagination.pageSize !== pageSize) {
-      setPageSize(pagination.pageSize);
-    }
-    if (pagination.current !== currentPage) {
-      setCurrentPage(pagination.current);
-    }
-  };
-
   const handleAddToPortfolio = (coins: CurrencyEntity[]) => {
     coins.forEach(onAddToPortfolio);
     setAddCoinsModalVisible(false);
@@ -130,10 +117,6 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
             onAddToPortfolio={onAddToPortfolio}
             onOpenAddCoinsModal={handleOpenAddCoinsModal}
             onOpenPortfolio={handleOpenPortfolio}
-            onTableChange={handleTableChange}
-            total={totalCoins}
-            pageSize={pageSize}
-            currentPage={currentPage}
           />
           <PortfolioModal
             totalPortfolioValue={totalPortfolioValue}

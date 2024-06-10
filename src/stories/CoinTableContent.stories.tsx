@@ -42,10 +42,5 @@ Default.args = {
   onOpenPortfolio: () => {
     console.log('Opening portfolio');
   },
-  onTableChange: (pagination: any, filters: any, sorter: any) => {
-    console.log('Table changed:', pagination, filters, sorter);
-  },
-  total: 1,
-  pageSize: 10,
-  currentPage: 1,
+
 };

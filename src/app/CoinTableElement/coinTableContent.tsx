@@ -13,10 +13,6 @@ interface CoinTableContentProps {
   onAddToPortfolio: (coin: CurrencyEntity) => void;
   onOpenAddCoinsModal: (coin: CurrencyEntity) => void;
   onOpenPortfolio: () => void;
-  onTableChange: (pagination: any, filters: any, sorter: any) => void;
-  total: number;
-  pageSize: number;
-  currentPage: number;
 }
 
 const CoinTableContent: React.FC<CoinTableContentProps> = ({
@@ -25,10 +21,6 @@ const CoinTableContent: React.FC<CoinTableContentProps> = ({
   onAddToPortfolio,
   onOpenAddCoinsModal,
   onOpenPortfolio,
-  onTableChange,
-  total,
-  pageSize,
-  currentPage
 }) => {
   const uniqueCoins = Array.from(new Set(coins.map((coin) => coin.id))).map(
     (id) => coins.find((coin) => coin.id === id) as CurrencyEntity
@@ -44,8 +36,6 @@ const CoinTableContent: React.FC<CoinTableContentProps> = ({
       <Table
         dataSource={uniqueCoins}
         rowKey="id"
-        pagination={{ current: currentPage, pageSize, total }}
-        onChange={onTableChange}
         onRow={(record: CurrencyEntity) => ({
           onClick: () => {
             onSelectCoin(record.id);
@@ -126,4 +116,4 @@ const CoinTableContent: React.FC<CoinTableContentProps> = ({
 };
 
 export default CoinTableContent;
-export type {CoinTableContentProps}
+export type { CoinTableContentProps }
