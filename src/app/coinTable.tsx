@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Spin } from 'antd';
 import { httpGet } from './api/apiHandler';
 import CoinSearch from './CoinTableElement/coinSearch';
@@ -8,6 +8,7 @@ import PortfolioModal from './modul/modulPage';
 import AddCoinsModal from './modul/addCoins';
 import { CurrencyEntity } from './interfaces';
 import styles from './CoinTable.module.scss';
+import { debounce } from './CoinTableElement/utils';
 
 interface CoinTableProps {
   portfolio: CurrencyEntity[];
@@ -21,9 +22,10 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
   const [loading, setLoading] = useState(true);
   const [selectedCoin, setSelectedCoin] = useState<CurrencyEntity | null>(null);
   const [searchValue, setSearchValue] = useState('');
+  const [searchLoading, setSearchLoading] = useState(false);
   const [portfolioVisible, setPortfolioVisible] = useState<boolean>(false);
   const [addCoinsModalVisible, setAddCoinsModalVisible] = useState<boolean>(false);
-  const [coinForAdd, setCoinForAdd] = useState<CurrencyEntity | null>(null); // Состояние для выбранной монеты
+  const [coinForAdd, setCoinForAdd] = useState<CurrencyEntity | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(100);
   const [totalCoins, setTotalCoins] = useState<number>(0);
@@ -46,6 +48,25 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
     }
   };
 
+  const debouncedFetchCoins = useCallback(
+    debounce((value: string) => {
+      setSearchLoading(true);
+      setTimeout(async () => {
+        await fetchCoins(currentPage, pageSize);
+        setSearchLoading(false);
+      }, 500);  // Added timeout to simulate search loading
+    }, 500),
+    [currentPage, pageSize]
+  );
+
+  useEffect(() => {
+    debouncedFetchCoins(searchValue);
+  }, [searchValue, debouncedFetchCoins]);
+
+  const handleSearch = (value: string) => {
+    setSearchValue(value);
+  };
+
   const handleSelectCoin = (coinId: string) => {
     const selected = coins.find((coin: CurrencyEntity) => coin.id === coinId);
     if (selected) {
@@ -55,11 +76,6 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
 
   const handleCloseCoinInfo = () => {
     setSelectedCoin(null);
-  };
-
-  const handleSearch = (value: string) => {
-    setSearchValue(value);
-    fetchCoins(currentPage, pageSize);
   };
 
   const handleOpenPortfolio = () => {
@@ -100,7 +116,8 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
 
   return (
     <div className={styles.mainContainer}>
-      <CoinSearch searchValue={searchValue} handleSearch={handleSearch} />
+      {!selectedCoin && <CoinSearch searchValue={searchValue} handleSearch={handleSearch} />}
+      {searchLoading && <div>Searching...</div>}
       {loading ? (
         <Spin />
       ) : selectedCoin ? (
@@ -111,7 +128,7 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
             coins={filteredCoins}
             onSelectCoin={handleSelectCoin}
             onAddToPortfolio={onAddToPortfolio}
-            onOpenAddCoinsModal={handleOpenAddCoinsModal} // Передаем функцию для открытия модального окна с выбранной монетой
+            onOpenAddCoinsModal={handleOpenAddCoinsModal}
             onOpenPortfolio={handleOpenPortfolio}
             onTableChange={handleTableChange}
             total={totalCoins}

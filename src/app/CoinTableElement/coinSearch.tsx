@@ -1,7 +1,8 @@
 import React from 'react';
 import { Input } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
-import  './style/CoinSearch.module.scss'
+import './style/CoinSearch.module.scss';
+
 const { Search } = Input;
 
 export interface CoinSearchProps {
@@ -22,3 +23,4 @@ const CoinSearch: React.FC<CoinSearchProps> = ({ searchValue, handleSearch }) =>
 };
 
 export default CoinSearch;
+
