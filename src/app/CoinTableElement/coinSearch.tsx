@@ -1,4 +1,3 @@
-// В компоненте CoinSearch
 
 import React, { useState } from 'react';
 import { Input } from 'antd';
@@ -25,13 +24,11 @@ const CoinSearch: React.FC<CoinSearchProps> = ({ searchValue, handleSearch }) =>
 
   const handleSearchWithDelay = (value: string) => {
     if (value === '') {
-      // Если строка пустая, сразу вызываем поиск
       handleSearch('');
       return;
     }
 
     setTimeout(() => {
-      console.log(value);
       handleSearch(value);
     }, 500);
   };

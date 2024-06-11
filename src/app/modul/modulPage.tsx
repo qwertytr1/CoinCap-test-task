@@ -2,7 +2,7 @@
   import { Button, Table, Modal, Typography } from 'antd';
   import { CurrencyEntity } from '../interfaces';
   import './PortfolioModal.scss';
-  import { useNavigate } from 'react-router-dom';
+
   interface PortfolioModalProps {
     visible: boolean;
     onClose: () => void;
@@ -14,7 +14,7 @@
   const { Text } = Typography;
 
   const PortfolioModal: React.FC<PortfolioModalProps> = ({ visible, onClose, portfolio, onDelete, totalPortfolioValue }) => {
-    const navigate = useNavigate();
+
     const handleGoBack = () => {
       onClose();
 

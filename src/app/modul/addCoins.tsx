@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Button, InputNumber } from 'antd';
 import { CurrencyEntity } from '../interfaces';
-import { useNavigate } from 'react-router-dom';
+
 
 interface AddCoinsModalProps {
   open: boolean;
@@ -12,7 +12,6 @@ interface AddCoinsModalProps {
 
 const AddCoinsModal: React.FC<AddCoinsModalProps> = ({ open, onClose, coins, onAddCoins }) => {
   const [coinQuantities, setCoinQuantities] = useState<{ [key: string]: number }>({});
-  const navigate = useNavigate();
   const handleAddCoins = () => {
     const selectedCoins = coins
       .filter(coin => coinQuantities[coin.id] > 0)
@@ -22,10 +21,7 @@ const AddCoinsModal: React.FC<AddCoinsModalProps> = ({ open, onClose, coins, onA
     setCoinQuantities({});
     onClose();
   };
-  const handleGoBack = () => {
-    onClose();
-    navigate(-1);
-};
+
   return (
     <Modal
       title="Добавление монет"

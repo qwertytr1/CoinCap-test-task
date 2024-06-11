@@ -1,4 +1,3 @@
-// В компоненте CoinTable
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Spin } from 'antd';
@@ -24,14 +23,14 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
   const [loading, setLoading] = useState(true);
   const [selectedCoin, setSelectedCoin] = useState<CurrencyEntity | null>(null);
   const [searchValue, setSearchValue] = useState('');
-  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchLoading ] = useState(false);
   const [portfolioVisible, setPortfolioVisible] = useState<boolean>(false);
   const [addCoinsModalVisible, setAddCoinsModalVisible] = useState<boolean>(false);
   const [coinForAdd, setCoinForAdd] = useState<CurrencyEntity | null>(null);
   const { rank } = useParams<{ rank: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const [typing, setTyping] = useState(false);
+
 
   useEffect(() => {
     fetchCoins();
@@ -49,14 +48,6 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
       setLoading(false);
     }
   };
-
-  const handleTyping = useCallback(() => {
-    if (!typing) {
-      console.log('1');
-      setTyping(true);
-      setTimeout(() => setTyping(false), 500); // Сбрасываем значение typing после 0.5 секунд
-    }
-  }, [typing]);
 
   useEffect(() => {
     if (coins.length > 0) {
