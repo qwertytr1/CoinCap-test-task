@@ -7,7 +7,7 @@ import { httpGet } from '../api/apiHandler';
 import { format, fromUnixTime } from 'date-fns';
 import './CoinPage.scss';
 import AddCoinsModal from '../modul/addCoins';
-
+import { useNavigate } from 'react-router-dom';
 const { Text } = Typography;
 const { Option } = Select;
 
@@ -43,7 +43,7 @@ const CoinPage: React.FC<CoinPageProps> = ({ coin, onClose, onAddToPortfolio, ch
     const [error, setError] = useState('');
     const [timeRange, setTimeRange] = useState('d1');
     const [addCoinsModalVisible, setAddCoinsModalVisible] = useState(false);
-
+    const navigate = useNavigate();
     useEffect(() => {
         const fetchChartData = async (range: string) => {
             if (initialChartData) return;
@@ -94,7 +94,10 @@ const CoinPage: React.FC<CoinPageProps> = ({ coin, onClose, onAddToPortfolio, ch
         coins.forEach(onAddToPortfolio);
         setAddCoinsModalVisible(false);
     };
-
+    const handleToClose = () => {
+        onClose();
+        navigate(`/`)
+}
     return (
         <div className="coin-page">
             <div className="coin-info">
@@ -115,7 +118,7 @@ const CoinPage: React.FC<CoinPageProps> = ({ coin, onClose, onAddToPortfolio, ch
                     <Option value="h12">12 часов</Option>
                     <Option value="h1">1 час</Option>
                 </Select>
-                <Button onClick={onClose} style={{ marginTop: '10px' }}>Назад</Button>
+                <Button onClick={handleToClose} style={{ marginTop: '10px' }}>Назад</Button>
                 <Button type="primary" onClick={() => setAddCoinsModalVisible(true)} style={{ marginTop: '10px' }}>Добавить</Button>
             </div>
             <div className="coin-chart">

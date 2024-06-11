@@ -3,6 +3,7 @@ import { Table, Typography, Button } from 'antd';
 import { CurrencyEntity } from '../interfaces';
 import { formatValue } from './utils';
 import styles from './style/CoinTableContent.module.scss';
+import { useNavigate } from 'react-router-dom';
 
 const { Column } = Table;
 const { Text } = Typography;
@@ -22,6 +23,7 @@ const CoinTableContent: React.FC<CoinTableContentProps> = ({
   onOpenAddCoinsModal,
   onOpenPortfolio,
 }) => {
+  const navigate = useNavigate();
   const uniqueCoins = Array.from(new Set(coins.map((coin) => coin.id))).map(
     (id) => coins.find((coin) => coin.id === id) as CurrencyEntity
   );
@@ -38,6 +40,7 @@ const CoinTableContent: React.FC<CoinTableContentProps> = ({
         rowKey="id"
         onRow={(record: CurrencyEntity) => ({
           onClick: () => {
+            navigate(`/coin/${record.rank}`);
             onSelectCoin(record.id);
           },
         })}
@@ -105,7 +108,7 @@ const CoinTableContent: React.FC<CoinTableContentProps> = ({
           key="action"
           render={(record: CurrencyEntity) => (
             <div className={styles.coinButton}>
-              <Button onClick={(event) => handleButtonClick(event, record)}>Добавить монету</Button>
+              <Button onClick={(event) => { handleButtonClick(event, record) }}>Добавить монету</Button>
             </div>
           )}
           responsive={['sm']}

@@ -5,6 +5,8 @@ import PortfolioModal from './app/modul/modulPage';
 import CoinTable from './app/coinTable';
 import { CurrencyEntity } from './app/interfaces';
 import AddCoinsModal from './app/modul/addCoins';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import ErrorPage from './app/Error/error';
 
 const App: React.FC = () => {
   const [portfolioVisible, setPortfolioVisible] = useState<boolean>(false);
@@ -13,9 +15,9 @@ const App: React.FC = () => {
     return savedPortfolio ? JSON.parse(savedPortfolio) : [];
   });
   const [, setCryptoRates] = useState<CurrencyEntity[]>([]);
-  const [selectedCoinsToAdd] = useState<CurrencyEntity[]>([]);
   const [addCoinsModalVisible, setAddCoinsModalVisible] = useState<boolean>(false);
   const [totalPortfolioValue, setTotalPortfolioValue] = useState<number>(0);
+  const [selectedCoinsToAdd] = useState<CurrencyEntity[]>([]);
 
   const fetchCryptoRates = useCallback(async () => {
     try {
@@ -43,9 +45,7 @@ const App: React.FC = () => {
       fetchCryptoRates();
     }
   }, [fetchCryptoRates, portfolio, portfolioVisible]);
-  useEffect(() => {
-    setTotalPortfolioValue(calculatePortfolioValue(portfolio));
-  }, [portfolio]);
+
   useEffect(() => {
     const interval = setInterval(() => {
       fetchCryptoRates();
@@ -90,6 +90,7 @@ const App: React.FC = () => {
       setPortfolio(prevPortfolio => [...prevPortfolio, { ...coin, purchasePrice: parseFloat(coin.priceUsd) }]);
     }
   };
+
   const handleCloseAddCoinsModal = () => {
     setAddCoinsModalVisible(false);
   };
@@ -116,28 +117,49 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="App">
-      <Header portfolio={portfolio} onOpenPortfolio={handleOpenPortfolio} totalPortfolioValue={totalPortfolioValue} />
-      <PortfolioModal
-        visible={portfolioVisible}
-        onClose={handleClosePortfolio}
-        portfolio={portfolio}
-        onDelete={handleDeleteCoin}
-        totalPortfolioValue={totalPortfolioValue}
-      />
-      <CoinTable
-        portfolio={portfolio}
-        onAddToPortfolio={handleAddToPortfolio}
-        onDeleteCoin={handleDeleteCoin}
-        totalPortfolioValue={totalPortfolioValue}
-      />
-      <AddCoinsModal
-        open={addCoinsModalVisible}
-        onClose={handleCloseAddCoinsModal}
-        coins={selectedCoinsToAdd}
-        onAddCoins={handleAddCoins}
-      />
-    </div>
+    <Router>
+      <div className="App">
+        <Header portfolio={portfolio} onOpenPortfolio={handleOpenPortfolio} totalPortfolioValue={totalPortfolioValue} />
+        <PortfolioModal
+          visible={portfolioVisible}
+          onClose={handleClosePortfolio}
+          portfolio={portfolio}
+          onDelete={handleDeleteCoin}
+          totalPortfolioValue={totalPortfolioValue}
+        />
+ <Routes>
+        <Route
+          path="/"
+          element={
+            <CoinTable
+              portfolio={portfolio}
+              onAddToPortfolio={handleAddToPortfolio}
+              onDeleteCoin={handleDeleteCoin}
+              totalPortfolioValue={totalPortfolioValue}
+            />
+          }
+        />
+        <Route
+          path="/coin/:rank"
+          element={
+            <CoinTable
+              portfolio={portfolio}
+              onAddToPortfolio={handleAddToPortfolio}
+              onDeleteCoin={handleDeleteCoin}
+              totalPortfolioValue={totalPortfolioValue}
+            />
+          }
+        />
+        <Route path="/error" element={<ErrorPage />} />
+      </Routes>
+        <AddCoinsModal
+          open={addCoinsModalVisible}
+          onClose={handleCloseAddCoinsModal}
+          coins={selectedCoinsToAdd}
+          onAddCoins={handleAddCoins}
+        />
+      </div>
+    </Router>
   );
 };
 

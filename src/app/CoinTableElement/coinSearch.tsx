@@ -24,3 +24,4 @@ const CoinSearch: React.FC<CoinSearchProps> = ({ searchValue, handleSearch }) =>
 
 export default CoinSearch;
 
+

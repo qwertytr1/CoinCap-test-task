@@ -8,7 +8,7 @@ import PortfolioModal from './modul/modulPage';
 import AddCoinsModal from './modul/addCoins';
 import { CurrencyEntity } from './interfaces';
 import styles from './CoinTable.module.scss';
-import { debounce } from './CoinTableElement/utils';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 
 interface CoinTableProps {
   portfolio: CurrencyEntity[];
@@ -26,6 +26,9 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
   const [portfolioVisible, setPortfolioVisible] = useState<boolean>(false);
   const [addCoinsModalVisible, setAddCoinsModalVisible] = useState<boolean>(false);
   const [coinForAdd, setCoinForAdd] = useState<CurrencyEntity | null>(null);
+  const { rank } = useParams<{ rank: string }>();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     fetchCoins();
@@ -42,26 +45,21 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
       console.error('Error fetching coins:', error);
       setLoading(false);
     }
-  }
-
-  const debouncedFetchCoins = useCallback(
-    debounce((value: string) => {
-      setSearchLoading(true);
-      setTimeout(async () => {
-        await fetchCoins();
-        setSearchLoading(false);
-      }, 500);  // Added timeout to simulate search loading
-    }, 500),
-    []
-  );
+  };
 
   useEffect(() => {
-    debouncedFetchCoins(searchValue);
-  }, [searchValue, debouncedFetchCoins]);
+    if (coins.length > 0) {
+      const selected = coins.find((coin: CurrencyEntity) => coin.rank === rank);
+      setSelectedCoin(selected || null);
+      if (!selected && rank) {
+        navigate('/error');
+      }
+    }
+  }, [rank, coins, navigate]);
 
-  const handleSearch = (value: string) => {
+  const handleSearch = useCallback((value: string) => {
     setSearchValue(value);
-  };
+  }, []);
 
   const handleSelectCoin = (coinId: string) => {
     const selected = coins.find((coin: CurrencyEntity) => coin.id === coinId);
@@ -103,21 +101,23 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
 
   return (
     <div className={styles.mainContainer}>
-      {!selectedCoin && <CoinSearch searchValue={searchValue} handleSearch={handleSearch} />}
-      {searchLoading && <div>Searching...</div>}
       {loading ? (
         <Spin />
-      ) : selectedCoin ? (
-        <CoinPage coin={selectedCoin} onClose={handleCloseCoinInfo} onAddToPortfolio={onAddToPortfolio} />
       ) : (
         <>
-          <CoinTableContent
-            coins={filteredCoins}
-            onSelectCoin={handleSelectCoin}
-            onAddToPortfolio={onAddToPortfolio}
-            onOpenAddCoinsModal={handleOpenAddCoinsModal}
-            onOpenPortfolio={handleOpenPortfolio}
-          />
+          {!selectedCoin && location.pathname !== '/error' && <CoinSearch searchValue={searchValue} handleSearch={handleSearch} />}
+          {searchLoading && <div>Searching...</div>}
+          {selectedCoin && location.pathname !== '/error' ? (
+            <CoinPage coin={selectedCoin} onClose={handleCloseCoinInfo} onAddToPortfolio={onAddToPortfolio} />
+          ) : (
+            <CoinTableContent
+              coins={filteredCoins}
+              onSelectCoin={handleSelectCoin}
+              onAddToPortfolio={onAddToPortfolio}
+              onOpenAddCoinsModal={handleOpenAddCoinsModal}
+              onOpenPortfolio={handleOpenPortfolio}
+            />
+          )}
           <PortfolioModal
             totalPortfolioValue={totalPortfolioValue}
             visible={portfolioVisible}

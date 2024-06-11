@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { httpGet } from '../api/apiHandler';
 import { CurrencyEntity } from '../interfaces';
 import './Header.scss';
+import { useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
   portfolio: CurrencyEntity[];
@@ -13,6 +14,7 @@ const Header: React.FC<HeaderProps> = ({ portfolio, onOpenPortfolio, totalPortfo
   const [cryptoRates, setCryptoRates] = useState<CurrencyEntity[]>([]);
   const [topThreeCryptos, setTopThreeCryptos] = useState<CurrencyEntity[]>([]);
   const [initialPortfolioValue, setInitialPortfolioValue] = useState<number>(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCryptoRates = async () => {
