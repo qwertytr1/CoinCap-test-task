@@ -1,5 +1,5 @@
 ## Deploy 
-https://coincaptest.netlify.app/
+https://coincaptest.netlify.app
 
 ## Available Scripts
 
