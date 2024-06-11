@@ -1,4 +1,6 @@
-import React from 'react';
+// В компоненте CoinSearch
+
+import React, { useState } from 'react';
 import { Input } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import './style/CoinSearch.module.scss';
@@ -11,11 +13,34 @@ export interface CoinSearchProps {
 }
 
 const CoinSearch: React.FC<CoinSearchProps> = ({ searchValue, handleSearch }) => {
+  const [inputValue, setInputValue] = useState<string>('');
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setInputValue(value);
+    if (value.trim() !== '' || value === '') {
+      handleSearchWithDelay(value);
+    }
+  };
+
+  const handleSearchWithDelay = (value: string) => {
+    if (value === '') {
+      // Если строка пустая, сразу вызываем поиск
+      handleSearch('');
+      return;
+    }
+
+    setTimeout(() => {
+      console.log(value);
+      handleSearch(value);
+    }, 500);
+  };
+
   return (
     <Search
       placeholder="Search coin"
-      value={searchValue}
-      onChange={(e) => handleSearch(e.target.value)}
+      value={inputValue}
+      onChange={handleInputChange}
       enterButton={<SearchOutlined />}
       style={{ marginBottom: 16 }}
     />
@@ -23,5 +48,3 @@ const CoinSearch: React.FC<CoinSearchProps> = ({ searchValue, handleSearch }) =>
 };
 
 export default CoinSearch;
-
-

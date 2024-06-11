@@ -1,3 +1,5 @@
+// В компоненте CoinTable
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { Spin } from 'antd';
 import { httpGet } from './api/apiHandler';
@@ -29,6 +31,7 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
   const { rank } = useParams<{ rank: string }>();
   const navigate = useNavigate();
   const location = useLocation();
+  const [typing, setTyping] = useState(false);
 
   useEffect(() => {
     fetchCoins();
@@ -46,6 +49,14 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
       setLoading(false);
     }
   };
+
+  const handleTyping = useCallback(() => {
+    if (!typing) {
+      console.log('1');
+      setTyping(true);
+      setTimeout(() => setTyping(false), 500); // Сбрасываем значение typing после 0.5 секунд
+    }
+  }, [typing]);
 
   useEffect(() => {
     if (coins.length > 0) {
@@ -105,38 +116,43 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
         <Spin />
       ) : (
         <>
-          {!selectedCoin && location.pathname !== '/error' && <CoinSearch searchValue={searchValue} handleSearch={handleSearch} />}
+          {!selectedCoin && location.pathname !== '/error' && (
+            <CoinSearch
+              searchValue={searchValue}
+              handleSearch={handleSearch}
+            />
+          )}
           {searchLoading && <div>Searching...</div>}
           {selectedCoin && location.pathname !== '/error' ? (
             <CoinPage coin={selectedCoin} onClose={handleCloseCoinInfo} onAddToPortfolio={onAddToPortfolio} />
-          ) : (
-            <CoinTableContent
-              coins={filteredCoins}
-              onSelectCoin={handleSelectCoin}
-              onAddToPortfolio={onAddToPortfolio}
-              onOpenAddCoinsModal={handleOpenAddCoinsModal}
-              onOpenPortfolio={handleOpenPortfolio}
+            ) : (
+              <CoinTableContent
+                coins={filteredCoins}
+                onSelectCoin={handleSelectCoin}
+                onAddToPortfolio={onAddToPortfolio}
+                onOpenAddCoinsModal={handleOpenAddCoinsModal}
+                onOpenPortfolio={handleOpenPortfolio}
+              />
+            )}
+            <PortfolioModal
+              totalPortfolioValue={totalPortfolioValue}
+              visible={portfolioVisible}
+              onClose={handleClosePortfolio}
+              portfolio={portfolio}
+              onDelete={onDeleteCoin}
             />
-          )}
-          <PortfolioModal
-            totalPortfolioValue={totalPortfolioValue}
-            visible={portfolioVisible}
-            onClose={handleClosePortfolio}
-            portfolio={portfolio}
-            onDelete={onDeleteCoin}
-          />
-          {coinForAdd && (
-            <AddCoinsModal
-              open={addCoinsModalVisible}
-              onClose={handleCloseAddCoinsModal}
-              coins={[coinForAdd]}
-              onAddCoins={handleAddToPortfolio}
-            />
-          )}
-        </>
-      )}
-    </div>
-  );
-};
+            {coinForAdd && (
+              <AddCoinsModal
+                open={addCoinsModalVisible}
+                onClose={handleCloseAddCoinsModal}
+                coins={[coinForAdd]}
+                onAddCoins={handleAddToPortfolio}
+              />
+            )}
+          </>
+        )}
+      </div>
+    );
+  };
 
-export default CoinTable;
+  export default CoinTable;
