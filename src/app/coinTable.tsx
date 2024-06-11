@@ -7,6 +7,7 @@ import CoinPage from './CoinPages/CoinPage';
 import PortfolioModal from './modul/modulPage';
 import AddCoinsModal from './modul/addCoins';
 import { CurrencyEntity } from './interfaces';
+import styles from './CoinTable.module.scss';
 
 interface CoinTableProps {
   portfolio: CurrencyEntity[];
@@ -98,7 +99,7 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
   );
 
   return (
-    <div style={{ width: '80%', margin: 'auto' }}>
+    <div className={styles.mainContainer}>
       <CoinSearch searchValue={searchValue} handleSearch={handleSearch} />
       {loading ? (
         <Spin />

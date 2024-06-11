@@ -11,7 +11,7 @@ interface CoinTableContentProps {
   coins: CurrencyEntity[];
   onSelectCoin: (coinId: string) => void;
   onAddToPortfolio: (coin: CurrencyEntity) => void;
-  onOpenAddCoinsModal: (coin: CurrencyEntity) => void; // Обновлено для передачи выбранной монеты
+  onOpenAddCoinsModal: (coin: CurrencyEntity) => void;
   onOpenPortfolio: () => void;
   onTableChange: (pagination: any, filters: any, sorter: any) => void;
   total: number;
@@ -52,7 +52,7 @@ const CoinTableContent: React.FC<CoinTableContentProps> = ({
           },
         })}
       >
-        <Column title="#" dataIndex="rank" key="rank" />
+        <Column title="#" dataIndex="rank" key="rank" responsive={['lg']} />
         <Column
           title="Название монеты"
           key="name"
@@ -97,6 +97,7 @@ const CoinTableContent: React.FC<CoinTableContentProps> = ({
             return parsedValue !== 0 ? <div>${formatValue(value)}</div> : null;
           }}
           sorter={(a: CurrencyEntity, b: CurrencyEntity) => parseFloat(a.marketCapUsd) - parseFloat(b.marketCapUsd)}
+          responsive={['md']}
         />
         <Column
           title="Изменение за 24 часа (%)"
@@ -107,6 +108,7 @@ const CoinTableContent: React.FC<CoinTableContentProps> = ({
             return parsedValue !== 0 ? <div>{Number(value).toFixed(2)}%</div> : null;
           }}
           sorter={(a: CurrencyEntity, b: CurrencyEntity) => parseFloat(a.changePercent24Hr) - parseFloat(b.changePercent24Hr)}
+          responsive={['lg']}
         />
         <Column
           title="Действие"
@@ -116,6 +118,7 @@ const CoinTableContent: React.FC<CoinTableContentProps> = ({
               <Button onClick={(event) => handleButtonClick(event, record)}>Добавить монету</Button>
             </div>
           )}
+          responsive={['sm']}
         />
       </Table>
     </div>

@@ -62,4 +62,3 @@ const Header: React.FC<HeaderProps> = ({ portfolio, onOpenPortfolio, totalPortfo
 };
 
 export default Header;
-
