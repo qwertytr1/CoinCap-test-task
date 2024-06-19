@@ -1,3 +1,5 @@
+import { CurrencyEntity } from "../interfaces";
+
 export const formatValue = (value: string | number) => {
     const num = Number(value);
     if (num >= 1e9) return `${(num / 1e9).toFixed(2)}b`;
@@ -12,3 +14,10 @@ export function debounce<T extends (...args: any[]) => void>(func: T, wait: numb
     timeout = setTimeout(() => func(...args), wait);
   } as T;
 }
+export const setStorageItem = (key:string, value:CurrencyEntity[]) => {
+  localStorage.setItem(key, JSON.stringify(value));
+};
+export const getStorageItem = (key:string) => {
+  const item = localStorage.getItem(key);
+  return item ? JSON.parse(item) : null;
+};

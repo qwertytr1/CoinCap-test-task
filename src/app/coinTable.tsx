@@ -1,16 +1,16 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { Spin } from 'antd';
 import { httpGet } from './api/apiHandler';
 import CoinSearch from './CoinTableElement/CoinSearch';
 import CoinTableContent from './CoinTableElement/CoinTableContent';
-import CoinPage from './CoinPages/CoinPage';
-import PortfolioModal from './Moduls/PortfolioModal';
-import AddCoinsModal from './Moduls/AddCoinsModal';
 import { CurrencyEntity, CoinTableProps } from './interfaces';
 import styles from './CoinTable.module.scss';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 
+const CoinPage = lazy(() => import('./CoinPages/CoinPage'));
+const PortfolioModal = lazy(() => import('./Moduls/PortfolioModal'));
+const AddCoinsModal = lazy(() => import('./Moduls/AddCoinsModal'));
 
 
 const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDeleteCoin, totalPortfolioValue }) => {
@@ -78,9 +78,11 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
   };
 
   const handleOpenAddCoinsModal = (coin: CurrencyEntity) => {
+    console.log("Opening modal for coin:", coin);
     setCoinForAdd(coin);
-
+    setAddCoinsModalVisible(true);
   };
+
 
   const handleCloseAddCoinsModal = () => {
     setAddCoinsModalVisible(false);
@@ -102,25 +104,26 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
         <Spin />
       ) : (
         <>
-          {!selectedCoin && (
-            <CoinSearch
-              searchValue={searchValue}
-              handleSearch={handleSearch}
-            />
-          )}
-            {searchLoading && <div>Searching...</div>}
 
+
+            {!selectedCoin && (
+            <CoinSearch searchValue={searchValue} handleSearch={handleSearch} />
+          )}
+          {searchLoading && <div>Searching...</div>}
           {selectedCoin ? (
-            <CoinPage coin={selectedCoin} onClose={handleCloseCoinInfo} onAddToPortfolio={onAddToPortfolio} />
-            ) : (
-              <CoinTableContent
-                coins={filteredCoins}
-                onSelectCoin={handleSelectCoin}
-                onAddToPortfolio={onAddToPortfolio}
-                onOpenAddCoinsModal={handleOpenAddCoinsModal}
-                onOpenPortfolio={handleOpenPortfolio}
-              />
-            )}
+            <Suspense fallback={<Spin />}>
+              <CoinPage coin={selectedCoin} onClose={handleCloseCoinInfo} onAddToPortfolio={onAddToPortfolio} />
+            </Suspense>
+          ) : (
+            <CoinTableContent
+            coins={filteredCoins}
+            onSelectCoin={handleSelectCoin}
+            onAddToPortfolio={onAddToPortfolio}
+            onOpenAddCoinsModal={handleOpenAddCoinsModal}
+            onOpenPortfolio={handleOpenPortfolio}
+          />
+          )}
+          <Suspense fallback={<Spin />}>
             <PortfolioModal
               totalPortfolioValue={totalPortfolioValue}
               visible={portfolioVisible}
@@ -128,14 +131,17 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
               portfolio={portfolio}
               onDelete={onDeleteCoin}
             />
-            {coinForAdd && (
-              <AddCoinsModal
-                open={addCoinsModalVisible}
-                onClose={handleCloseAddCoinsModal}
-                coins={[coinForAdd]}
-                onAddCoins={handleAddToPortfolio}
-              />
-            )}
+          </Suspense>
+          {coinForAdd && (
+  <Suspense fallback={<Spin />}>
+    <AddCoinsModal
+      open={addCoinsModalVisible}
+      onClose={handleCloseAddCoinsModal}
+      coins={[coinForAdd]}
+      onAddCoins={handleAddToPortfolio}
+    />
+  </Suspense>
+)}
           </>
         )}
       </div>

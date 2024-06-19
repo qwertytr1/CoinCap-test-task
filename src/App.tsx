@@ -8,6 +8,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import ErrorPage from './app/ErrorPage/ErrorPage';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { getStorageItem, setStorageItem } from './app/CoinTableElement/utils';
 //use contexts
 
 const App: React.FC = () => {
@@ -33,13 +34,19 @@ const App: React.FC = () => {
     }
   }, [portfolio]);
 
-//create func getStorageItem arg string
-  //set storage items вынести в utils
-  //c
   useEffect(() => {
-    localStorage.setItem('portfolio', JSON.stringify(portfolio));
+    const storedPortfolio = getStorageItem('portfolio');
+    if (storedPortfolio) {
+      setPortfolio(storedPortfolio);
+        }
+
+  }, []);
+
+  useEffect(() => {
+    setStorageItem('portfolio', portfolio);
     setPortfolioCostDifference(calculateDifference(portfolio));
   }, [portfolio]);
+
   useEffect(() => {
     if (portfolioVisible && !portfolio.length) {
       fetchCryptoRates();
