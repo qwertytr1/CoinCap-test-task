@@ -1,15 +1,7 @@
   import React from 'react';
   import { Button, Table, Modal, Typography } from 'antd';
-  import { CurrencyEntity } from '../interfaces';
+  import { CurrencyEntity, PortfolioModalProps } from '../interfaces';
   import './PortfolioModal.scss';
-
-  interface PortfolioModalProps {
-    visible: boolean;
-    onClose: () => void;
-    portfolio: CurrencyEntity[];
-    onDelete: (id: string) => void;
-    totalPortfolioValue: number;
-  }
 
   const { Text } = Typography;
 
@@ -79,4 +71,3 @@
   };
 
   export default PortfolioModal;
-  export type { PortfolioModalProps };

@@ -2,40 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { Button, Spin, Typography, Select } from 'antd';
 import { Line } from 'react-chartjs-2';
 import { Chart, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-import { CurrencyEntity } from '../interfaces';
+import { CurrencyEntity, CoinPageProps, ChartApiResponse } from '../interfaces';
 import { httpGet } from '../api/apiHandler';
 import { format, fromUnixTime } from 'date-fns';
 import './CoinPage.scss';
-import AddCoinsModal from '../modul/addCoins';
+import AddCoinsModal from '../Moduls/AddCoinsModal';
 import { useNavigate } from 'react-router-dom';
 const { Text } = Typography;
 const { Option } = Select;
 
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-interface ChartDataPoint {
-    time: number;
-    priceUsd: string;
-}
-
-interface ChartApiResponse {
-    data: ChartDataPoint[];
-}
-
-interface CoinPageProps {
-    coin: CurrencyEntity;
-    onClose: () => void;
-    onAddToPortfolio: (coin: CurrencyEntity) => void;
-    chartData?: {
-        labels: string[];
-        datasets: {
-            label: string;
-            data: number[];
-            borderColor: string;
-            fill: boolean;
-        }[];
-    };
-}
 
 const CoinPage: React.FC<CoinPageProps> = ({ coin, onClose, onAddToPortfolio, chartData: initialChartData }) => {
     const [chartData, setChartData] = useState(initialChartData || null);

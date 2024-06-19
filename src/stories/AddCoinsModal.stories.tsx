@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Meta, StoryFn } from '@storybook/react';
-import AddCoinsModal, { AddCoinsModalProps } from '../app/modul/addCoins';
+import AddCoinsModal from '../app/Moduls/AddCoinsModal';
+import { AddCoinsModalProps } from '../app/interfaces';
 
 export default {
   title: 'Components/AddCoinsModal',

@@ -1,15 +1,8 @@
 import React, { useState } from 'react';
 import { Modal, Button, InputNumber } from 'antd';
-import { CurrencyEntity } from '../interfaces';
+import {AddCoinsModalProps } from '../interfaces';
 
-
-interface AddCoinsModalProps {
-  open: boolean;
-  onClose: () => void;
-  coins: CurrencyEntity[];
-  onAddCoins: (selectedCoins: CurrencyEntity[]) => void;
-}
-
+//check export interfaces
 const AddCoinsModal: React.FC<AddCoinsModalProps> = ({ open, onClose, coins, onAddCoins }) => {
   const [coinQuantities, setCoinQuantities] = useState<{ [key: string]: number }>({});
   const handleAddCoins = () => {
@@ -21,7 +14,7 @@ const AddCoinsModal: React.FC<AddCoinsModalProps> = ({ open, onClose, coins, onA
     setCoinQuantities({});
     onClose();
   };
-
+//42 строка эту функцию переписать
   return (
     <Modal
       title="Добавление монет"
@@ -55,4 +48,3 @@ const AddCoinsModal: React.FC<AddCoinsModalProps> = ({ open, onClose, coins, onA
 };
 
 export default AddCoinsModal;
-export type { AddCoinsModalProps };

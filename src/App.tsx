@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { httpGet } from './app/api/apiHandler';
-import Header from './app/header/header';
-import PortfolioModal from './app/modul/modulPage';
-import CoinTable from './app/coinTable';
+import Header from './app/Header/Header';
+import PortfolioModal from './app/Moduls/PortfolioModal';
+import CoinTable from './app/CoinTable';
 import { CurrencyEntity } from './app/interfaces';
-import AddCoinsModal from './app/modul/addCoins';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import ErrorPage from './app/Error/error';
+import ErrorPage from './app/ErrorPage/ErrorPage';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+//use contexts
 
 const App: React.FC = () => {
   const [portfolioVisible, setPortfolioVisible] = useState<boolean>(false);
@@ -14,32 +16,30 @@ const App: React.FC = () => {
     const savedPortfolio = localStorage.getItem('portfolio');
     return savedPortfolio ? JSON.parse(savedPortfolio) : [];
   });
-  const [, setCryptoRates] = useState<CurrencyEntity[]>([]);
-  const [addCoinsModalVisible, setAddCoinsModalVisible] = useState<boolean>(false);
-  const [totalPortfolioValue, setTotalPortfolioValue] = useState<number>(0);
-  const [selectedCoinsToAdd] = useState<CurrencyEntity[]>([]);
-
+  const [PartfolioCostDifference, setPortfolioCostDifference] = useState<number>(0);
   const fetchCryptoRates = useCallback(async () => {
     try {
-      const response = await httpGet<{ data: CurrencyEntity[] }>('/assets');
-      setCryptoRates(response.data.data);
+      const { data: { data: coinsData } } = await httpGet<{ data: CurrencyEntity[] }>('/assets');
 
-      const updatedPortfolio = portfolio.map(coin => {
-        const updatedCoin = response.data.data.find(apiCoin => apiCoin.id === coin.id);
-        return updatedCoin ? { ...coin, priceUsd: updatedCoin.priceUsd } : coin;
-      });
+      const updatedPortfolio = portfolio.reduce((acc: CurrencyEntity[], coin: CurrencyEntity) => {
+        const updatedCoin = coinsData.find(apiCoin => apiCoin.id === coin.id);
+        acc.push(updatedCoin ? { ...coin, priceUsd: updatedCoin.priceUsd } : coin);
+        return acc;
+      }, []);
 
       setPortfolio(updatedPortfolio);
     } catch (error) {
-      console.error('Ошибка при получении списка криптовалют:', error);
+     toast.error(`Ошибка при получении списка криптовалют:${error}`);
     }
   }, [portfolio]);
 
+//create func getStorageItem arg string
+  //set storage items вынести в utils
+  //c
   useEffect(() => {
     localStorage.setItem('portfolio', JSON.stringify(portfolio));
-    setTotalPortfolioValue(calculatePortfolioValue(portfolio));
+    setPortfolioCostDifference(calculateDifference(portfolio));
   }, [portfolio]);
-
   useEffect(() => {
     if (portfolioVisible && !portfolio.length) {
       fetchCryptoRates();
@@ -54,7 +54,7 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, [fetchCryptoRates]);
 
-  const calculatePortfolioValue = (portfolio: CurrencyEntity[]) => {
+  const calculateDifference = (portfolio: CurrencyEntity[]) => {
     return portfolio.reduce((acc, coin) => acc + (parseFloat(coin.priceUsd) * (coin.quantity || 0)), 0);
   };
 
@@ -68,7 +68,7 @@ const App: React.FC = () => {
 
   const handleAddToPortfolio = (coin: CurrencyEntity) => {
     if (coin.quantity < 0.01 || coin.quantity > 1000) {
-      alert('Количество монет должно быть в диапазоне от 0.01 до 1000');
+      toast.error('Количество монет должно быть в диапазоне от 0.01 до 1000');
       return;
     }
 
@@ -91,41 +91,24 @@ const App: React.FC = () => {
     }
   };
 
-  const handleCloseAddCoinsModal = () => {
-    setAddCoinsModalVisible(false);
-  };
-
-  const handleAddCoins = (coinsToAdd: CurrencyEntity[]) => {
-    const updatedPortfolio = [...portfolio];
-    coinsToAdd.forEach(coin => {
-      const existingCoinIndex = updatedPortfolio.findIndex(portfolioCoin => portfolioCoin.id === coin.id);
-      if (existingCoinIndex !== -1) {
-        updatedPortfolio[existingCoinIndex].quantity += coin.quantity;
-      } else {
-        updatedPortfolio.push({ ...coin, purchasePrice: parseFloat(coin.priceUsd) });
-      }
-    });
-
-    setPortfolio(updatedPortfolio);
-    setAddCoinsModalVisible(false);
-    setPortfolioVisible(true);
-  };
-
   const handleDeleteCoin = (id: string) => {
     const updatedPortfolio = portfolio.filter(coin => coin.id !== id);
     setPortfolio(updatedPortfolio);
   };
-
+//recheck routes dont use одинаковые элементы в рутах  вынести руты в отдельный компонент кщгеуы  Настройка маршрутизации для реакт приложения laxyloading
   return (
+    <>
+    <ToastContainer />
     <Router>
       <div className="App">
-        <Header portfolio={portfolio} onOpenPortfolio={handleOpenPortfolio} totalPortfolioValue={totalPortfolioValue} />
+
+        <Header portfolio={portfolio} onOpenPortfolio={handleOpenPortfolio} totalPortfolioValue={PartfolioCostDifference} />
         <PortfolioModal
           visible={portfolioVisible}
           onClose={handleClosePortfolio}
           portfolio={portfolio}
           onDelete={handleDeleteCoin}
-          totalPortfolioValue={totalPortfolioValue}
+          totalPortfolioValue={PartfolioCostDifference}
         />
  <Routes>
         <Route
@@ -135,7 +118,7 @@ const App: React.FC = () => {
               portfolio={portfolio}
               onAddToPortfolio={handleAddToPortfolio}
               onDeleteCoin={handleDeleteCoin}
-              totalPortfolioValue={totalPortfolioValue}
+              totalPortfolioValue={PartfolioCostDifference}
             />
           }
         />
@@ -146,20 +129,14 @@ const App: React.FC = () => {
               portfolio={portfolio}
               onAddToPortfolio={handleAddToPortfolio}
               onDeleteCoin={handleDeleteCoin}
-              totalPortfolioValue={totalPortfolioValue}
+              totalPortfolioValue={PartfolioCostDifference}
             />
           }
         />
         <Route path="/error" element={<ErrorPage />} />
       </Routes>
-        <AddCoinsModal
-          open={addCoinsModalVisible}
-          onClose={handleCloseAddCoinsModal}
-          coins={selectedCoinsToAdd}
-          onAddCoins={handleAddCoins}
-        />
       </div>
-    </Router>
+    </Router></>
   );
 };
 

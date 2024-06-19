@@ -3,13 +3,9 @@ import React, { useState } from 'react';
 import { Input } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import './style/CoinSearch.module.scss';
+import { CoinSearchProps } from '../interfaces';
 
 const { Search } = Input;
-
-export interface CoinSearchProps {
-  searchValue: string;
-  handleSearch: (value: string) => void;
-}
 
 const CoinSearch: React.FC<CoinSearchProps> = ({ searchValue, handleSearch }) => {
   const [inputValue, setInputValue] = useState<string>('');

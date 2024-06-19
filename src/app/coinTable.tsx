@@ -2,21 +2,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Spin } from 'antd';
 import { httpGet } from './api/apiHandler';
-import CoinSearch from './CoinTableElement/coinSearch';
-import CoinTableContent from './CoinTableElement/coinTableContent';
+import CoinSearch from './CoinTableElement/CoinSearch';
+import CoinTableContent from './CoinTableElement/CoinTableContent';
 import CoinPage from './CoinPages/CoinPage';
-import PortfolioModal from './modul/modulPage';
-import AddCoinsModal from './modul/addCoins';
-import { CurrencyEntity } from './interfaces';
+import PortfolioModal from './Moduls/PortfolioModal';
+import AddCoinsModal from './Moduls/AddCoinsModal';
+import { CurrencyEntity, CoinTableProps } from './interfaces';
 import styles from './CoinTable.module.scss';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 
-interface CoinTableProps {
-  portfolio: CurrencyEntity[];
-  onAddToPortfolio: (coin: CurrencyEntity) => void;
-  onDeleteCoin: (id: string) => void;
-  totalPortfolioValue: number;
-}
+
 
 const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDeleteCoin, totalPortfolioValue }) => {
   const [coins, setCoins] = useState<CurrencyEntity[]>([]);
@@ -84,7 +79,7 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
 
   const handleOpenAddCoinsModal = (coin: CurrencyEntity) => {
     setCoinForAdd(coin);
-    setAddCoinsModalVisible(true);
+
   };
 
   const handleCloseAddCoinsModal = () => {
@@ -94,7 +89,7 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
 
   const handleAddToPortfolio = (coins: CurrencyEntity[]) => {
     coins.forEach(onAddToPortfolio);
-    setAddCoinsModalVisible(false);
+    setCoinForAdd(null);
   };
 
   const filteredCoins = coins.filter(coin =>
@@ -107,14 +102,15 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
         <Spin />
       ) : (
         <>
-          {!selectedCoin && location.pathname !== '/error' && (
+          {!selectedCoin && (
             <CoinSearch
               searchValue={searchValue}
               handleSearch={handleSearch}
             />
           )}
-          {searchLoading && <div>Searching...</div>}
-          {selectedCoin && location.pathname !== '/error' ? (
+            {searchLoading && <div>Searching...</div>}
+
+          {selectedCoin ? (
             <CoinPage coin={selectedCoin} onClose={handleCloseCoinInfo} onAddToPortfolio={onAddToPortfolio} />
             ) : (
               <CoinTableContent

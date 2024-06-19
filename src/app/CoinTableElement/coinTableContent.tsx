@@ -1,6 +1,6 @@
 import React from 'react';
 import { Table, Typography, Button } from 'antd';
-import { CurrencyEntity } from '../interfaces';
+import { CurrencyEntity, CoinTableContentProps } from '../interfaces';
 import { formatValue } from './utils';
 import styles from './style/CoinTableContent.module.scss';
 import { useNavigate } from 'react-router-dom';
@@ -8,20 +8,10 @@ import { useNavigate } from 'react-router-dom';
 const { Column } = Table;
 const { Text } = Typography;
 
-interface CoinTableContentProps {
-  coins: CurrencyEntity[];
-  onSelectCoin: (coinId: string) => void;
-  onAddToPortfolio: (coin: CurrencyEntity) => void;
-  onOpenAddCoinsModal: (coin: CurrencyEntity) => void;
-  onOpenPortfolio: () => void;
-}
-
 const CoinTableContent: React.FC<CoinTableContentProps> = ({
   coins,
   onSelectCoin,
-  onAddToPortfolio,
   onOpenAddCoinsModal,
-  onOpenPortfolio,
 }) => {
   const navigate = useNavigate();
   const uniqueCoins = Array.from(new Set(coins.map((coin) => coin.id))).map(
@@ -119,4 +109,3 @@ const CoinTableContent: React.FC<CoinTableContentProps> = ({
 };
 
 export default CoinTableContent;
-export type { CoinTableContentProps }

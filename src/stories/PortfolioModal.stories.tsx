@@ -1,6 +1,7 @@
 import React from 'react';
 import { StoryFn, Meta } from '@storybook/react';
-import PortfolioModal, { PortfolioModalProps } from '../app/modul/modulPage';
+import PortfolioModal from '../app/Moduls/PortfolioModal';
+import { PortfolioModalProps } from '../app/interfaces';
 
 export default {
   title: 'PortfolioModal',

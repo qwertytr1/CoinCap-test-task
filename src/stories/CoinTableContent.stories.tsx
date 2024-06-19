@@ -1,7 +1,7 @@
 import React from 'react';
 import { Meta, StoryFn } from '@storybook/react';
-import CoinTableContent, { CoinTableContentProps } from '../app/CoinTableElement/coinTableContent';
-import { CurrencyEntity } from '../app/interfaces';
+import CoinTableContent from '../app/CoinTableElement/CoinTableContent';
+import { CoinTableContentProps, CurrencyEntity } from '../app/interfaces';
 
 export default {
   title: 'CoinTableContent',

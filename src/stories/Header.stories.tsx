@@ -1,6 +1,6 @@
 import React from 'react';
 import { StoryFn, Meta } from '@storybook/react';
-import Header from '../app/header/header';
+import Header from '../app/Header/Header';
 import { CurrencyEntity } from '../app/interfaces';
 
 interface HeaderProps {
