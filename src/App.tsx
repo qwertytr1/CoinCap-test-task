@@ -1,15 +1,15 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { httpGet } from './app/api/apiHandler';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Header from './app/Header/Header';
 import PortfolioModal from './app/Moduls/PortfolioModal';
-import CoinTable from './app/CoinTable';
+import routes from './app/routes/routes';
 import { CurrencyEntity } from './app/interfaces';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { getStorageItem, setStorageItem } from './app/utils/utils';
+import { RouteProvider } from './app/routes/RouteContext';
+import { httpGet } from './app/api/apiHandler';
 import ErrorPage from './app/ErrorPage/ErrorPage';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { getStorageItem, setStorageItem } from './app/CoinTableElement/utils';
-//use contexts
 
 const App: React.FC = () => {
   const [portfolioVisible, setPortfolioVisible] = useState<boolean>(false);
@@ -18,6 +18,7 @@ const App: React.FC = () => {
     return savedPortfolio ? JSON.parse(savedPortfolio) : [];
   });
   const [PartfolioCostDifference, setPortfolioCostDifference] = useState<number>(0);
+
   const fetchCryptoRates = useCallback(async () => {
     try {
       const { data: { data: coinsData } } = await httpGet<{ data: CurrencyEntity[] }>('/assets');
@@ -30,7 +31,7 @@ const App: React.FC = () => {
 
       setPortfolio(updatedPortfolio);
     } catch (error) {
-     toast.error(`Ошибка при получении списка криптовалют:${error}`);
+      toast.error(`Ошибка при получении списка криптовалют: ${error}`);
     }
   }, [portfolio]);
 
@@ -38,8 +39,7 @@ const App: React.FC = () => {
     const storedPortfolio = getStorageItem('portfolio');
     if (storedPortfolio) {
       setPortfolio(storedPortfolio);
-        }
-
+    }
   }, []);
 
   useEffect(() => {
@@ -102,48 +102,38 @@ const App: React.FC = () => {
     const updatedPortfolio = portfolio.filter(coin => coin.id !== id);
     setPortfolio(updatedPortfolio);
   };
-//recheck routes dont use одинаковые элементы в рутах  вынести руты в отдельный компонент кщгеуы  Настройка маршрутизации для реакт приложения laxyloading
+
   return (
     <>
-    <ToastContainer />
-    <Router>
-      <div className="App">
-
-        <Header portfolio={portfolio} onOpenPortfolio={handleOpenPortfolio} totalPortfolioValue={PartfolioCostDifference} />
-        <PortfolioModal
-          visible={portfolioVisible}
-          onClose={handleClosePortfolio}
-          portfolio={portfolio}
-          onDelete={handleDeleteCoin}
-          totalPortfolioValue={PartfolioCostDifference}
-        />
- <Routes>
-        <Route
-          path="/"
-          element={
-            <CoinTable
+      <ToastContainer />
+      <Router>
+        <RouteProvider routes={routes}>
+          <div className="App">
+            <Header portfolio={portfolio} onOpenPortfolio={handleOpenPortfolio} totalPortfolioValue={PartfolioCostDifference} />
+            <PortfolioModal
+              visible={portfolioVisible}
+              onClose={handleClosePortfolio}
               portfolio={portfolio}
-              onAddToPortfolio={handleAddToPortfolio}
-              onDeleteCoin={handleDeleteCoin}
+              onDelete={handleDeleteCoin}
               totalPortfolioValue={PartfolioCostDifference}
             />
-          }
-        />
-        <Route
-          path="/coin/:rank"
-          element={
-            <CoinTable
-              portfolio={portfolio}
-              onAddToPortfolio={handleAddToPortfolio}
-              onDeleteCoin={handleDeleteCoin}
-              totalPortfolioValue={PartfolioCostDifference}
-            />
-          }
-        />
-        <Route path="/error" element={<ErrorPage />} />
-      </Routes>
-      </div>
-    </Router></>
+            <Suspense fallback={<div>Loading...</div>}>
+              <Routes>
+                {routes.map((route, index) => (
+   <Route key={index} path={route.path} element={<route.component
+    portfolio={portfolio}
+    onAddToPortfolio={handleAddToPortfolio}
+    onDeleteCoin={handleDeleteCoin}
+                totalPortfolioValue={PartfolioCostDifference}
+  />} />
+                ))}
+                <Route path="*" element={<ErrorPage />} />
+              </Routes>
+            </Suspense>
+          </div>
+        </RouteProvider>
+      </Router>
+    </>
   );
 };
 

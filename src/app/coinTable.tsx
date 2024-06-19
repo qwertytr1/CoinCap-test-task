@@ -6,7 +6,7 @@ import CoinSearch from './CoinTableElement/CoinSearch';
 import CoinTableContent from './CoinTableElement/CoinTableContent';
 import { CurrencyEntity, CoinTableProps } from './interfaces';
 import styles from './CoinTable.module.scss';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 const CoinPage = lazy(() => import('./CoinPages/CoinPage'));
 const PortfolioModal = lazy(() => import('./Moduls/PortfolioModal'));
@@ -24,7 +24,6 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
   const [coinForAdd, setCoinForAdd] = useState<CurrencyEntity | null>(null);
   const { rank } = useParams<{ rank: string }>();
   const navigate = useNavigate();
-  const location = useLocation();
 
 
   useEffect(() => {

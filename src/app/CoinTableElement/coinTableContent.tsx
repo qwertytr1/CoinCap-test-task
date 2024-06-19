@@ -1,7 +1,7 @@
 import React from 'react';
 import { Table, Typography, Button } from 'antd';
 import { CurrencyEntity, CoinTableContentProps } from '../interfaces';
-import { formatValue } from './utils';
+import { formatValue } from '../utils/utils';
 import styles from './style/CoinTableContent.module.scss';
 import { useNavigate } from 'react-router-dom';
 
