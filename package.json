@@ -65,6 +65,7 @@
     "@storybook/react": "^8.1.6",
     "@storybook/react-webpack5": "^8.1.6",
     "@storybook/test": "^8.1.6",
+    "@sveltejs/adapter-netlify": "^1.0.0-next.65",
     "eslint-plugin-storybook": "^0.8.0",
     "prop-types": "^15.8.1",
     "sass": "^1.77.4",
