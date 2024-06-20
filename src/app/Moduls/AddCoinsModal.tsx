@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Modal, Button, InputNumber } from 'antd';
-import {AddCoinsModalProps } from '../interfaces';
+import { AddCoinsModalProps } from '../interfaces';
 
-//check export interfaces
 const AddCoinsModal: React.FC<AddCoinsModalProps> = ({ open, onClose, coins, onAddCoins }) => {
   const [coinQuantities, setCoinQuantities] = useState<{ [key: string]: number }>({});
+
   const handleAddCoins = () => {
     const selectedCoins = coins
       .filter(coin => coinQuantities[coin.id] > 0)
@@ -14,7 +14,14 @@ const AddCoinsModal: React.FC<AddCoinsModalProps> = ({ open, onClose, coins, onA
     setCoinQuantities({});
     onClose();
   };
-//42 строка эту функцию переписать
+
+  const handleQuantityChange = (coinId: string, value: number | null) => {
+    setCoinQuantities(prev => ({
+      ...prev,
+      [coinId]: value || 0,
+    }));
+  };
+
   return (
     <Modal
       title="Добавление монет"
@@ -32,12 +39,7 @@ const AddCoinsModal: React.FC<AddCoinsModalProps> = ({ open, onClose, coins, onA
             <InputNumber
               min={0}
               value={coinQuantities[coin.id] || 0}
-              onChange={value => {
-                setCoinQuantities(prev => ({
-                  ...prev,
-                  [coin.id]: value || 0,
-                }));
-              }}
+              onChange={value => handleQuantityChange(coin.id, value)}
             />
             <p>Сумма: {((coinQuantities[coin.id] || 0) * parseFloat(coin.priceUsd)).toFixed(2)}</p>
           </div>
