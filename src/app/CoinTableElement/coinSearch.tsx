@@ -7,7 +7,7 @@ import { CoinSearchProps } from '../interfaces';
 
 const { Search } = Input;
 
-const CoinSearch: React.FC<CoinSearchProps> = ({ searchValue, handleSearch }) => {
+const CoinSearch: React.FC<CoinSearchProps> = ({ handleSearch }) => {
   const [inputValue, setInputValue] = useState<string>('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

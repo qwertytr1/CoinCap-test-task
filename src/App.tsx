@@ -23,12 +23,13 @@ const App: React.FC = () => {
     try {
       const { data: { data: coinsData } } = await httpGet<{ data: CurrencyEntity[] }>('/assets');
 
-      const updatedPortfolio = portfolio.reduce((acc: CurrencyEntity[], coin: CurrencyEntity) => {
+      const updatedPortfolio = portfolio.map(coin => {
         const updatedCoin = coinsData.find(apiCoin => apiCoin.id === coin.id);
-        acc.push(updatedCoin ? { ...coin, priceUsd: updatedCoin.priceUsd } : coin);
-        return acc;
-      }, []);
-
+        if (updatedCoin) {
+          return { ...coin, priceUsd: updatedCoin.priceUsd };
+        }
+        return coin;
+      });
       setPortfolio(updatedPortfolio);
     } catch (error) {
       toast.error(`Ошибка при получении списка криптовалют: ${error}`);

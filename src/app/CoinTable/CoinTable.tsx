@@ -1,23 +1,23 @@
 
 import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { Spin } from 'antd';
-import { httpGet } from './api/apiHandler';
-import CoinSearch from './CoinTableElement/CoinSearch';
-import CoinTableContent from './CoinTableElement/CoinTableContent';
-import { CurrencyEntity, CoinTableProps } from './interfaces';
+import { httpGet } from '../api/apiHandler';
+import CoinSearch from '../CoinTableElement/CoinSearch';
+import CoinTableContent from '../CoinTableElement/CoinTableContent';
+import { CurrencyEntity, CoinTableProps } from '../interfaces';
 import styles from './CoinTable.module.scss';
 import { useParams, useNavigate } from 'react-router-dom';
 
-const CoinPage = lazy(() => import('./CoinPages/CoinPage'));
-const PortfolioModal = lazy(() => import('./Moduls/PortfolioModal'));
-const AddCoinsModal = lazy(() => import('./Moduls/AddCoinsModal'));
+const CoinPage = lazy(() => import('../CoinPages/CoinPage'));
+const PortfolioModal = lazy(() => import('../Moduls/PortfolioModal'));
+const AddCoinsModal = lazy(() => import('../Moduls/AddCoinsModal'));
 
 
 const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDeleteCoin, totalPortfolioValue }) => {
   const [coins, setCoins] = useState<CurrencyEntity[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCoin, setSelectedCoin] = useState<CurrencyEntity | null>(null);
-  const [searchValue, setSearchValue] = useState('');
+  const [searchValue, setSearchValue] = useState<string>('');
   const [searchLoading ] = useState(false);
   const [portfolioVisible, setPortfolioVisible] = useState<boolean>(false);
   const [addCoinsModalVisible, setAddCoinsModalVisible] = useState<boolean>(false);
@@ -77,7 +77,6 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
   };
 
   const handleOpenAddCoinsModal = (coin: CurrencyEntity) => {
-    console.log("Opening modal for coin:", coin);
     setCoinForAdd(coin);
     setAddCoinsModalVisible(true);
   };

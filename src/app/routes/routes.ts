@@ -1,5 +1,5 @@
 
-import CoinTable from '../CoinTable';
+import CoinTable from '../CoinTable/CoinTable';
 import ErrorPage from '../ErrorPage/ErrorPage';
 
 
