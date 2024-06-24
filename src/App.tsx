@@ -107,7 +107,7 @@ const App: React.FC = () => {
   return (
     <>
       <ToastContainer />
-      <Router>
+      <Router basename="/CoinCap-test-task">
         <RouteProvider routes={routes}>
           <div className="App">
             <Header portfolio={portfolio} onOpenPortfolio={handleOpenPortfolio} totalPortfolioValue={PartfolioCostDifference} />
@@ -121,12 +121,16 @@ const App: React.FC = () => {
             <Suspense fallback={<div>Loading...</div>}>
               <Routes>
                 {routes.map((route, index) => (
-   <Route key={index} path={route.path} element={<route.component
-    portfolio={portfolio}
-    onAddToPortfolio={handleAddToPortfolio}
-    onDeleteCoin={handleDeleteCoin}
-                totalPortfolioValue={PartfolioCostDifference}
-  />} />
+                  <Route
+                    key={index}
+                    path={route.path}
+                    element={<route.component
+                      portfolio={portfolio}
+                      onAddToPortfolio={handleAddToPortfolio}
+                      onDeleteCoin={handleDeleteCoin}
+                      totalPortfolioValue={PartfolioCostDifference}
+                    />}
+                  />
                 ))}
                 <Route path="*" element={<ErrorPage />} />
               </Routes>
