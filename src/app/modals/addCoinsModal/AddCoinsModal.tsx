@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Button, InputNumber } from 'antd';
-import { AddCoinsModalProps } from '../interfaces';
+import { AddCoinsModalProps } from '../../interfaces';
 
 const AddCoinsModal: React.FC<AddCoinsModalProps> = ({ open, onClose, coins, onAddCoins }) => {
   const [coinQuantities, setCoinQuantities] = useState<{ [key: string]: number }>({});

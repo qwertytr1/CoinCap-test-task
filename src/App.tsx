@@ -2,14 +2,14 @@ import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Header from './app/Header/Header';
-import PortfolioModal from './app/Moduls/PortfolioModal';
+import Header from "./app/header/Header";
+import PortfolioModal from './app/modals/portfolioModal/PortfolioModal';
 import routes from './app/routes/routes';
 import { CurrencyEntity } from './app/interfaces';
 import { getStorageItem, setStorageItem } from './app/utils/utils';
 import { RouteProvider } from './app/routes/RouteContext';
 import { httpGet } from './app/api/apiHandler';
-import ErrorPage from './app/ErrorPage/ErrorPage';
+import ErrorPage from './app/errorPage/ErrorPage';
 
 const App: React.FC = () => {
   const [portfolioVisible, setPortfolioVisible] = useState<boolean>(false);

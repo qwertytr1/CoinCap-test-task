@@ -1,6 +1,6 @@
   import React from 'react';
   import { Button, Table, Modal, Typography } from 'antd';
-  import { CurrencyEntity, PortfolioModalProps } from '../interfaces';
+  import { CurrencyEntity, PortfolioModalProps } from '../../interfaces';
   import './PortfolioModal.scss';
 
   const { Text } = Typography;

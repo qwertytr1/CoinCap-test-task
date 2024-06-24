@@ -2,15 +2,15 @@
 import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { Spin } from 'antd';
 import { httpGet } from '../api/apiHandler';
-import CoinSearch from '../CoinTableElement/CoinSearch';
-import CoinTableContent from '../CoinTableElement/CoinTableContent';
+import CoinSearch from '../coinTableElement/coinSearch/CoinSearch';
+import CoinTableContent from '../coinTableElement/coinTableContent/CoinTableContent';
 import { CurrencyEntity, CoinTableProps } from '../interfaces';
 import styles from './CoinTable.module.scss';
 import { useParams, useNavigate } from 'react-router-dom';
 
-const CoinPage = lazy(() => import('../CoinPages/CoinPage'));
-const PortfolioModal = lazy(() => import('../Moduls/PortfolioModal'));
-const AddCoinsModal = lazy(() => import('../Moduls/AddCoinsModal'));
+const CoinPage = lazy(() => import('../coinPage/CoinPage'));
+const PortfolioModal = lazy(() => import('../modals/portfolioModal/PortfolioModal'));
+const AddCoinsModal = lazy(() => import('../modals/addCoinsModal/AddCoinsModal'));
 
 
 const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDeleteCoin, totalPortfolioValue }) => {

@@ -1,6 +1,6 @@
 
-import CoinTable from '../CoinTable/CoinTable';
-import ErrorPage from '../ErrorPage/ErrorPage';
+import CoinTable from '../coinTable/CoinTable';
+import ErrorPage from '../errorPage/ErrorPage';
 
 
 const routes = [

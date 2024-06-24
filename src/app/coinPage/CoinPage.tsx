@@ -6,7 +6,7 @@ import { CurrencyEntity, CoinPageProps, ChartApiResponse } from '../interfaces';
 import { httpGet } from '../api/apiHandler';
 import { format, fromUnixTime } from 'date-fns';
 import './CoinPage.scss';
-import AddCoinsModal from '../Moduls/AddCoinsModal';
+import AddCoinsModal from '../modals/addCoinsModal/AddCoinsModal';
 import { useNavigate } from 'react-router-dom';
 const { Text } = Typography;
 const { Option } = Select;

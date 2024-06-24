@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 import { Input } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
-import './style/CoinSearch.module.scss';
-import { CoinSearchProps } from '../interfaces';
+import './CoinSearch.module.scss';
+import { CoinSearchProps } from '../../interfaces';
 
 const { Search } = Input;
 
