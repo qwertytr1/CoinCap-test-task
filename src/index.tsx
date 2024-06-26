@@ -4,16 +4,15 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { PortfolioProvider } from 'app/context/PortfolioContext';
-import {HashRouter as Router} from 'react-router-dom'
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
-<Router>
+  <React.StrictMode>
  <PortfolioProvider>
     <App />
   </PortfolioProvider>
-  </Router>
+  </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function
