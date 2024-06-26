@@ -1,25 +1,15 @@
 {
   "files": {
-    "main.css": "/CoinCap-test-task/static/css/main.5d6bd136.css",
-    "main.js": "/CoinCap-test-task/static/js/main.6b27ed4b.js",
-    "static/css/950.1ed59426.chunk.css": "/CoinCap-test-task/static/css/950.1ed59426.chunk.css",
-    "static/js/950.480df30b.chunk.js": "/CoinCap-test-task/static/js/950.480df30b.chunk.js",
-    "static/js/606.267eabc1.chunk.js": "/CoinCap-test-task/static/js/606.267eabc1.chunk.js",
+    "main.css": "/CoinCap-test-task/static/css/main.044b6a52.css",
+    "main.js": "/CoinCap-test-task/static/js/main.6633aaad.js",
     "static/js/453.c8a7233b.chunk.js": "/CoinCap-test-task/static/js/453.c8a7233b.chunk.js",
-    "static/js/118.dad37ce2.chunk.js": "/CoinCap-test-task/static/js/118.dad37ce2.chunk.js",
-    "static/js/139.0e008e62.chunk.js": "/CoinCap-test-task/static/js/139.0e008e62.chunk.js",
     "index.html": "/CoinCap-test-task/index.html",
-    "main.5d6bd136.css.map": "/CoinCap-test-task/static/css/main.5d6bd136.css.map",
-    "main.6b27ed4b.js.map": "/CoinCap-test-task/static/js/main.6b27ed4b.js.map",
-    "950.1ed59426.chunk.css.map": "/CoinCap-test-task/static/css/950.1ed59426.chunk.css.map",
-    "950.480df30b.chunk.js.map": "/CoinCap-test-task/static/js/950.480df30b.chunk.js.map",
-    "606.267eabc1.chunk.js.map": "/CoinCap-test-task/static/js/606.267eabc1.chunk.js.map",
-    "453.c8a7233b.chunk.js.map": "/CoinCap-test-task/static/js/453.c8a7233b.chunk.js.map",
-    "118.dad37ce2.chunk.js.map": "/CoinCap-test-task/static/js/118.dad37ce2.chunk.js.map",
-    "139.0e008e62.chunk.js.map": "/CoinCap-test-task/static/js/139.0e008e62.chunk.js.map"
+    "main.044b6a52.css.map": "/CoinCap-test-task/static/css/main.044b6a52.css.map",
+    "main.6633aaad.js.map": "/CoinCap-test-task/static/js/main.6633aaad.js.map",
+    "453.c8a7233b.chunk.js.map": "/CoinCap-test-task/static/js/453.c8a7233b.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.5d6bd136.css",
-    "static/js/main.6b27ed4b.js"
+    "static/css/main.044b6a52.css",
+    "static/js/main.6633aaad.js"
   ]
 }
