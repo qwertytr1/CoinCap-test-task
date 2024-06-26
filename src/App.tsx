@@ -11,7 +11,7 @@ const App: React.FC = () => {
   return (
     <>
       <ToastContainer />
-      <Router basename="/CoinCap-test-task">
+      <Router basename={process.env.PUBLIC_URL}>
         <div className="App">
           <Header />
           <PortfolioModal />
