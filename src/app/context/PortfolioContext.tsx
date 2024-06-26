@@ -57,7 +57,6 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
       setCoins(responseData.data);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching coins:', error);
       setLoading(false);
     }
   };
@@ -70,10 +69,10 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
     const selected = coins.find((coin: CurrencyEntity) => coin.id === coinId);
     setSelectedCoin(selected || null);
   }, [coins]);
+
   const handleCloseCoinInfo = () => {
     setSelectedCoin(null);
   };
-
 
   const handleOpenAddCoinsModal = (coin: CurrencyEntity) => {
     setCoinForAdd(coin);
@@ -96,11 +95,15 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
         }
         return coin;
       });
-      setPortfolio(updatedPortfolio);
+
+      if (JSON.stringify(updatedPortfolio) !== JSON.stringify(portfolio)) {
+        setPortfolio(updatedPortfolio);
+      }
     } catch (error) {
       toast.error(`Ошибка при получении списка криптовалют: ${error}`);
     }
   }, [portfolio]);
+
   useEffect(() => {
     const storedPortfolio = getStorageItem('portfolio');
     if (storedPortfolio) {
@@ -114,15 +117,9 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
   }, [portfolio]);
 
   useEffect(() => {
-    if (portfolioVisible && !portfolio.length) {
-      fetchCryptoRates();
-    }
-  }, [fetchCryptoRates, portfolio, portfolioVisible]);
-
-  useEffect(() => {
     const interval = setInterval(() => {
       fetchCryptoRates();
-    }, 2000);
+    }, 10000);
 
     return () => clearInterval(interval);
   }, [fetchCryptoRates]);
@@ -133,10 +130,6 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
 
   const handleOpenPortfolio = () => {
     setPortfolioVisible(true);
-  };
-
-  const handleClosePortfolio = () => {
-    setPortfolioVisible(false);
   };
 
   const handleAddToPortfolio = (coins: CurrencyEntity[]) => {
@@ -166,6 +159,9 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
     });
   };
 
+  const handleClosePortfolio = () => {
+    setPortfolioVisible(false);
+  };
 
   const handleDeleteCoin = (id: string) => {
     const updatedPortfolio = portfolio.filter(coin => coin.id !== id);
