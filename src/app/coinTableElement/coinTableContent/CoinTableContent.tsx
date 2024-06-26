@@ -1,35 +1,19 @@
 import React from 'react';
 import { Table, Typography, Button } from 'antd';
-import { CurrencyEntity } from '../interfaces';
-import { formatValue } from './utils';
-import styles from './style/CoinTableContent.module.scss';
+import { CurrencyEntity, CoinTableContentProps } from '../../interfaces';
+import { formatValue } from '../../utils/utils';
+import styles from './CoinTableContent.module.scss';
+import { useNavigate } from 'react-router-dom';
 
 const { Column } = Table;
 const { Text } = Typography;
 
-interface CoinTableContentProps {
-  coins: CurrencyEntity[];
-  onSelectCoin: (coinId: string) => void;
-  onAddToPortfolio: (coin: CurrencyEntity) => void;
-  onOpenAddCoinsModal: (coin: CurrencyEntity) => void;
-  onOpenPortfolio: () => void;
-  onTableChange: (pagination: any, filters: any, sorter: any) => void;
-  total: number;
-  pageSize: number;
-  currentPage: number;
-}
-
 const CoinTableContent: React.FC<CoinTableContentProps> = ({
   coins,
   onSelectCoin,
-  onAddToPortfolio,
   onOpenAddCoinsModal,
-  onOpenPortfolio,
-  onTableChange,
-  total,
-  pageSize,
-  currentPage
 }) => {
+  const navigate = useNavigate();
   const uniqueCoins = Array.from(new Set(coins.map((coin) => coin.id))).map(
     (id) => coins.find((coin) => coin.id === id) as CurrencyEntity
   );
@@ -44,10 +28,9 @@ const CoinTableContent: React.FC<CoinTableContentProps> = ({
       <Table
         dataSource={uniqueCoins}
         rowKey="id"
-        pagination={{ current: currentPage, pageSize, total }}
-        onChange={onTableChange}
         onRow={(record: CurrencyEntity) => ({
           onClick: () => {
+            navigate(`/coin/${record.rank}`);
             onSelectCoin(record.id);
           },
         })}
@@ -115,7 +98,7 @@ const CoinTableContent: React.FC<CoinTableContentProps> = ({
           key="action"
           render={(record: CurrencyEntity) => (
             <div className={styles.coinButton}>
-              <Button onClick={(event) => handleButtonClick(event, record)}>Добавить монету</Button>
+              <Button onClick={(event) => { handleButtonClick(event, record) }}>Добавить монету</Button>
             </div>
           )}
           responsive={['sm']}
@@ -126,4 +109,3 @@ const CoinTableContent: React.FC<CoinTableContentProps> = ({
 };
 
 export default CoinTableContent;
-export type {CoinTableContentProps}

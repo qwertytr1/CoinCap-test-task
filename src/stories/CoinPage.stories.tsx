@@ -1,6 +1,6 @@
 import React from 'react';
 import { StoryFn, Meta } from '@storybook/react';
-import CoinPage from '../app/CoinPages/CoinPage';
+import CoinPage from '../app/coinPage/CoinPage';
 import { CurrencyEntity } from '../app/interfaces';
 
 export default {

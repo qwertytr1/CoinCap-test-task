@@ -1,18 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { httpGet } from '../api/apiHandler';
-import { CurrencyEntity } from '../interfaces';
+import { CurrencyEntity, HeaderProps } from '../interfaces';
 import './Header.scss';
 
-interface HeaderProps {
-  portfolio: CurrencyEntity[];
-  onOpenPortfolio: () => void;
-  totalPortfolioValue: number;
-}
+
 
 const Header: React.FC<HeaderProps> = ({ portfolio, onOpenPortfolio, totalPortfolioValue }) => {
   const [cryptoRates, setCryptoRates] = useState<CurrencyEntity[]>([]);
   const [topThreeCryptos, setTopThreeCryptos] = useState<CurrencyEntity[]>([]);
   const [initialPortfolioValue, setInitialPortfolioValue] = useState<number>(0);
+
 
   useEffect(() => {
     const fetchCryptoRates = async () => {

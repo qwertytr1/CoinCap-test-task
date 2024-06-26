@@ -1,7 +1,7 @@
 import React from 'react';
 import { Meta, StoryFn } from '@storybook/react';
-import CoinTableContent, { CoinTableContentProps } from '../app/CoinTableElement/coinTableContent';
-import { CurrencyEntity } from '../app/interfaces';
+import CoinTableContent from '../app/coinTableElement/coinTableContent/CoinTableContent';
+import { CoinTableContentProps, CurrencyEntity } from '../app/interfaces';
 
 export default {
   title: 'CoinTableContent',
@@ -42,10 +42,5 @@ Default.args = {
   onOpenPortfolio: () => {
     console.log('Opening portfolio');
   },
-  onTableChange: (pagination: any, filters: any, sorter: any) => {
-    console.log('Table changed:', pagination, filters, sorter);
-  },
-  total: 1,
-  pageSize: 10,
-  currentPage: 1,
+
 };

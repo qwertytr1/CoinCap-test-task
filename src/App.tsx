@@ -1,10 +1,15 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { httpGet } from './app/api/apiHandler';
-import Header from './app/header/header';
-import PortfolioModal from './app/modul/modulPage';
-import CoinTable from './app/coinTable';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Header from "./app/header/Header";
+import PortfolioModal from './app/modals/portfolioModal/PortfolioModal';
+import routes from './app/routes/routes';
 import { CurrencyEntity } from './app/interfaces';
-import AddCoinsModal from './app/modul/addCoins';
+import { getStorageItem, setStorageItem } from './app/utils/utils';
+import { RouteProvider } from './app/routes/RouteContext';
+import { httpGet } from './app/api/apiHandler';
+import ErrorPage from './app/errorPage/ErrorPage';
 
 const App: React.FC = () => {
   const [portfolioVisible, setPortfolioVisible] = useState<boolean>(false);
@@ -12,30 +17,35 @@ const App: React.FC = () => {
     const savedPortfolio = localStorage.getItem('portfolio');
     return savedPortfolio ? JSON.parse(savedPortfolio) : [];
   });
-  const [, setCryptoRates] = useState<CurrencyEntity[]>([]);
-  const [selectedCoinsToAdd] = useState<CurrencyEntity[]>([]);
-  const [addCoinsModalVisible, setAddCoinsModalVisible] = useState<boolean>(false);
-  const [totalPortfolioValue, setTotalPortfolioValue] = useState<number>(0);
+  const [PartfolioCostDifference, setPortfolioCostDifference] = useState<number>(0);
 
   const fetchCryptoRates = useCallback(async () => {
     try {
-      const response = await httpGet<{ data: CurrencyEntity[] }>('/assets');
-      setCryptoRates(response.data.data);
+      const { data: { data: coinsData } } = await httpGet<{ data: CurrencyEntity[] }>('/assets');
 
       const updatedPortfolio = portfolio.map(coin => {
-        const updatedCoin = response.data.data.find(apiCoin => apiCoin.id === coin.id);
-        return updatedCoin ? { ...coin, priceUsd: updatedCoin.priceUsd } : coin;
+        const updatedCoin = coinsData.find(apiCoin => apiCoin.id === coin.id);
+        if (updatedCoin) {
+          return { ...coin, priceUsd: updatedCoin.priceUsd };
+        }
+        return coin;
       });
-
       setPortfolio(updatedPortfolio);
     } catch (error) {
-      console.error('Ошибка при получении списка криптовалют:', error);
+      toast.error(`Ошибка при получении списка криптовалют: ${error}`);
     }
   }, [portfolio]);
 
   useEffect(() => {
-    localStorage.setItem('portfolio', JSON.stringify(portfolio));
-    setTotalPortfolioValue(calculatePortfolioValue(portfolio));
+    const storedPortfolio = getStorageItem('portfolio');
+    if (storedPortfolio) {
+      setPortfolio(storedPortfolio);
+    }
+  }, []);
+
+  useEffect(() => {
+    setStorageItem('portfolio', portfolio);
+    setPortfolioCostDifference(calculateDifference(portfolio));
   }, [portfolio]);
 
   useEffect(() => {
@@ -43,9 +53,7 @@ const App: React.FC = () => {
       fetchCryptoRates();
     }
   }, [fetchCryptoRates, portfolio, portfolioVisible]);
-  useEffect(() => {
-    setTotalPortfolioValue(calculatePortfolioValue(portfolio));
-  }, [portfolio]);
+
   useEffect(() => {
     const interval = setInterval(() => {
       fetchCryptoRates();
@@ -54,7 +62,7 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, [fetchCryptoRates]);
 
-  const calculatePortfolioValue = (portfolio: CurrencyEntity[]) => {
+  const calculateDifference = (portfolio: CurrencyEntity[]) => {
     return portfolio.reduce((acc, coin) => acc + (parseFloat(coin.priceUsd) * (coin.quantity || 0)), 0);
   };
 
@@ -68,7 +76,7 @@ const App: React.FC = () => {
 
   const handleAddToPortfolio = (coin: CurrencyEntity) => {
     if (coin.quantity < 0.01 || coin.quantity > 1000) {
-      alert('Количество монет должно быть в диапазоне от 0.01 до 1000');
+      toast.error('Количество монет должно быть в диапазоне от 0.01 до 1000');
       return;
     }
 
@@ -90,25 +98,6 @@ const App: React.FC = () => {
       setPortfolio(prevPortfolio => [...prevPortfolio, { ...coin, purchasePrice: parseFloat(coin.priceUsd) }]);
     }
   };
-  const handleCloseAddCoinsModal = () => {
-    setAddCoinsModalVisible(false);
-  };
-
-  const handleAddCoins = (coinsToAdd: CurrencyEntity[]) => {
-    const updatedPortfolio = [...portfolio];
-    coinsToAdd.forEach(coin => {
-      const existingCoinIndex = updatedPortfolio.findIndex(portfolioCoin => portfolioCoin.id === coin.id);
-      if (existingCoinIndex !== -1) {
-        updatedPortfolio[existingCoinIndex].quantity += coin.quantity;
-      } else {
-        updatedPortfolio.push({ ...coin, purchasePrice: parseFloat(coin.priceUsd) });
-      }
-    });
-
-    setPortfolio(updatedPortfolio);
-    setAddCoinsModalVisible(false);
-    setPortfolioVisible(true);
-  };
 
   const handleDeleteCoin = (id: string) => {
     const updatedPortfolio = portfolio.filter(coin => coin.id !== id);
@@ -116,28 +105,40 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="App">
-      <Header portfolio={portfolio} onOpenPortfolio={handleOpenPortfolio} totalPortfolioValue={totalPortfolioValue} />
-      <PortfolioModal
-        visible={portfolioVisible}
-        onClose={handleClosePortfolio}
-        portfolio={portfolio}
-        onDelete={handleDeleteCoin}
-        totalPortfolioValue={totalPortfolioValue}
-      />
-      <CoinTable
-        portfolio={portfolio}
-        onAddToPortfolio={handleAddToPortfolio}
-        onDeleteCoin={handleDeleteCoin}
-        totalPortfolioValue={totalPortfolioValue}
-      />
-      <AddCoinsModal
-        open={addCoinsModalVisible}
-        onClose={handleCloseAddCoinsModal}
-        coins={selectedCoinsToAdd}
-        onAddCoins={handleAddCoins}
-      />
-    </div>
+    <>
+      <ToastContainer />
+      <Router basename="/CoinCap-test-task">
+        <RouteProvider routes={routes}>
+          <div className="App">
+            <Header portfolio={portfolio} onOpenPortfolio={handleOpenPortfolio} totalPortfolioValue={PartfolioCostDifference} />
+            <PortfolioModal
+              visible={portfolioVisible}
+              onClose={handleClosePortfolio}
+              portfolio={portfolio}
+              onDelete={handleDeleteCoin}
+              totalPortfolioValue={PartfolioCostDifference}
+            />
+            <Suspense fallback={<div>Loading...</div>}>
+              <Routes>
+                {routes.map((route, index) => (
+                  <Route
+                    key={index}
+                    path={route.path}
+                    element={<route.component
+                      portfolio={portfolio}
+                      onAddToPortfolio={handleAddToPortfolio}
+                      onDeleteCoin={handleDeleteCoin}
+                      totalPortfolioValue={PartfolioCostDifference}
+                    />}
+                  />
+                ))}
+                <Route path="*" element={<ErrorPage />} />
+              </Routes>
+            </Suspense>
+          </div>
+        </RouteProvider>
+      </Router>
+    </>
   );
 };
 

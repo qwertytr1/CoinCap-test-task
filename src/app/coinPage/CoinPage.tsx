@@ -2,40 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { Button, Spin, Typography, Select } from 'antd';
 import { Line } from 'react-chartjs-2';
 import { Chart, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-import { CurrencyEntity } from '../interfaces';
+import { CurrencyEntity, CoinPageProps, ChartApiResponse } from '../interfaces';
 import { httpGet } from '../api/apiHandler';
 import { format, fromUnixTime } from 'date-fns';
 import './CoinPage.scss';
-import AddCoinsModal from '../modul/addCoins';
-
+import AddCoinsModal from '../modals/addCoinsModal/AddCoinsModal';
+import { useNavigate } from 'react-router-dom';
 const { Text } = Typography;
 const { Option } = Select;
 
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-interface ChartDataPoint {
-    time: number;
-    priceUsd: string;
-}
-
-interface ChartApiResponse {
-    data: ChartDataPoint[];
-}
-
-interface CoinPageProps {
-    coin: CurrencyEntity;
-    onClose: () => void;
-    onAddToPortfolio: (coin: CurrencyEntity) => void;
-    chartData?: {
-        labels: string[];
-        datasets: {
-            label: string;
-            data: number[];
-            borderColor: string;
-            fill: boolean;
-        }[];
-    };
-}
 
 const CoinPage: React.FC<CoinPageProps> = ({ coin, onClose, onAddToPortfolio, chartData: initialChartData }) => {
     const [chartData, setChartData] = useState(initialChartData || null);
@@ -43,7 +20,7 @@ const CoinPage: React.FC<CoinPageProps> = ({ coin, onClose, onAddToPortfolio, ch
     const [error, setError] = useState('');
     const [timeRange, setTimeRange] = useState('d1');
     const [addCoinsModalVisible, setAddCoinsModalVisible] = useState(false);
-
+    const navigate = useNavigate();
     useEffect(() => {
         const fetchChartData = async (range: string) => {
             if (initialChartData) return;
@@ -94,7 +71,10 @@ const CoinPage: React.FC<CoinPageProps> = ({ coin, onClose, onAddToPortfolio, ch
         coins.forEach(onAddToPortfolio);
         setAddCoinsModalVisible(false);
     };
-
+    const handleToClose = () => {
+        onClose();
+        navigate(`/`)
+}
     return (
         <div className="coin-page">
             <div className="coin-info">
@@ -115,7 +95,7 @@ const CoinPage: React.FC<CoinPageProps> = ({ coin, onClose, onAddToPortfolio, ch
                     <Option value="h12">12 часов</Option>
                     <Option value="h1">1 час</Option>
                 </Select>
-                <Button onClick={onClose} style={{ marginTop: '10px' }}>Назад</Button>
+                <Button onClick={handleToClose} style={{ marginTop: '10px' }}>Назад</Button>
                 <Button type="primary" onClick={() => setAddCoinsModalVisible(true)} style={{ marginTop: '10px' }}>Добавить</Button>
             </div>
             <div className="coin-chart">

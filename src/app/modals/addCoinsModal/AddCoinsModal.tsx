@@ -1,13 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Button, InputNumber } from 'antd';
-import { CurrencyEntity } from '../interfaces';
-
-interface AddCoinsModalProps {
-  open: boolean;
-  onClose: () => void;
-  coins: CurrencyEntity[];
-  onAddCoins: (selectedCoins: CurrencyEntity[]) => void;
-}
+import { AddCoinsModalProps } from '../../interfaces';
 
 const AddCoinsModal: React.FC<AddCoinsModalProps> = ({ open, onClose, coins, onAddCoins }) => {
   const [coinQuantities, setCoinQuantities] = useState<{ [key: string]: number }>({});
@@ -20,6 +13,13 @@ const AddCoinsModal: React.FC<AddCoinsModalProps> = ({ open, onClose, coins, onA
     onAddCoins(selectedCoins);
     setCoinQuantities({});
     onClose();
+  };
+
+  const handleQuantityChange = (coinId: string, value: number | null) => {
+    setCoinQuantities(prev => ({
+      ...prev,
+      [coinId]: value || 0,
+    }));
   };
 
   return (
@@ -39,12 +39,7 @@ const AddCoinsModal: React.FC<AddCoinsModalProps> = ({ open, onClose, coins, onA
             <InputNumber
               min={0}
               value={coinQuantities[coin.id] || 0}
-              onChange={value => {
-                setCoinQuantities(prev => ({
-                  ...prev,
-                  [coin.id]: value || 0,
-                }));
-              }}
+              onChange={value => handleQuantityChange(coin.id, value)}
             />
             <p>Сумма: {((coinQuantities[coin.id] || 0) * parseFloat(coin.priceUsd)).toFixed(2)}</p>
           </div>
@@ -55,4 +50,3 @@ const AddCoinsModal: React.FC<AddCoinsModalProps> = ({ open, onClose, coins, onA
 };
 
 export default AddCoinsModal;
-export type { AddCoinsModalProps };

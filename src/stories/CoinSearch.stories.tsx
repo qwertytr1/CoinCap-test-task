@@ -1,6 +1,7 @@
 import React from 'react';
 import { Meta, StoryFn } from '@storybook/react';
-import CoinSearch, { CoinSearchProps } from '../app/CoinTableElement/coinSearch';
+import CoinSearch from '../app/coinTableElement/coinSearch/CoinSearch';
+import { CoinSearchProps } from '../app/interfaces';
 
 export default {
   title: 'CoinSearch',

@@ -16,23 +16,62 @@ export interface CurrencyEntity {
   purchasePrice: number;
 }
 export interface CoinTableContentProps {
-    coins: CurrencyEntity[];
-    onSelectCoin: (coinId: string) => void;
-  }
-export interface NormalizedCurrencyEntity {
-    [key: string]: CurrencyEntity;
+  coins: CurrencyEntity[];
+  onSelectCoin: (coinId: string) => void;
+  onAddToPortfolio: (coin: CurrencyEntity) => void;
+  onOpenAddCoinsModal: (coin: CurrencyEntity) => void;
+  onOpenPortfolio: () => void;
 }
 
-export interface UseStore {
-        allCurrencies: NormalizedCurrencyEntity | undefined;
-        isLoading: boolean;
+  export interface PortfolioModalProps {
+    visible: boolean;
+    onClose: () => void;
+    portfolio: CurrencyEntity[];
+    onDelete: (id: string) => void;
+    totalPortfolioValue: number;
+  }
+  export interface AddCoinsModalProps {
+    open: boolean;
+    onClose: () => void;
+    coins: CurrencyEntity[];
+    onAddCoins: (selectedCoins: CurrencyEntity[]) => void;
+  }
+  export interface CoinTableProps {
+    portfolio: CurrencyEntity[];
+    onAddToPortfolio: (coin: CurrencyEntity) => void;
+    onDeleteCoin: (id: string) => void;
+    totalPortfolioValue: number;
+  }
+
+export interface HeaderProps {
+  portfolio: CurrencyEntity[];
+  onOpenPortfolio: () => void;
+  totalPortfolioValue: number;
 }
-export interface CustomChartData {
-  labels: string[];
-  datasets: {
-    label: string;
-    data: number[];
-    borderColor: string;
-    fill: boolean;
-  }[];
+interface ChartDataPoint {
+  time: number;
+  priceUsd: string;
+}
+
+export interface ChartApiResponse {
+  data: ChartDataPoint[];
+}
+
+export interface CoinPageProps {
+  coin: CurrencyEntity;
+  onClose: () => void;
+  onAddToPortfolio: (coin: CurrencyEntity) => void;
+  chartData?: {
+      labels: string[];
+      datasets: {
+          label: string;
+          data: number[];
+          borderColor: string;
+          fill: boolean;
+      }[];
+  };
+}
+export interface CoinSearchProps {
+  searchValue: string;
+  handleSearch: (value: string) => void;
 }
