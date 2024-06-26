@@ -15,7 +15,7 @@ interface TemplateProps {
   chartData?: any;
 }
 
-const Template: StoryFn<TemplateProps> = (args) => <CoinPage {...args} />;
+const Template: StoryFn<TemplateProps> = () => <CoinPage  />;
 
 export const Default = Template.bind({});
 Default.args = {

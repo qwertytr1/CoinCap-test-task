@@ -1,14 +1,15 @@
   import React from 'react';
   import { Button, Table, Modal, Typography } from 'antd';
-  import { CurrencyEntity, PortfolioModalProps } from '../../interfaces';
+  import { CurrencyEntity } from '../../interfaces';
   import './PortfolioModal.scss';
+import { usePortfolio } from 'app/context/PortfolioContext';
 
   const { Text } = Typography;
 
-  const PortfolioModal: React.FC<PortfolioModalProps> = ({ visible, onClose, portfolio, onDelete, totalPortfolioValue }) => {
-
+  const PortfolioModal: React.FC = () => {
+    const { portfolio, portfolioVisible, portfolioCostDifference,handleClosePortfolio, handleDeleteCoin } = usePortfolio();
     const handleGoBack = () => {
-      onClose();
+      handleClosePortfolio();
 
 
   };
@@ -43,7 +44,7 @@
         title: 'Действие',
         key: 'action',
         render: (record: CurrencyEntity) => (
-          <Button type="link" onClick={() => onDelete(record.id)}>Удалить</Button>
+          <Button type="link" onClick={() => handleDeleteCoin(record.id)}>Удалить</Button>
         ),
       },
     ];
@@ -51,7 +52,7 @@
     return (
       <Modal
         title="Портфолио пользователя"
-        visible={visible}
+        visible={portfolioVisible}
         onCancel={handleGoBack}
         footer={[
           <Button key="close" onClick={handleGoBack} >Закрыть</Button>,
@@ -63,7 +64,7 @@
           columns={columns}
           rowKey="id"
           footer={() => (
-            <Text strong>Общая сумма портфеля: ${totalPortfolioValue.toFixed(2)}</Text>
+            <Text strong>Общая сумма портфеля: ${portfolioCostDifference.toFixed(2)}</Text>
           )}
         />
       </Modal>

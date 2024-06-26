@@ -2,49 +2,84 @@ import React, { useState, useEffect } from 'react';
 import { Button, Spin, Typography, Select } from 'antd';
 import { Line } from 'react-chartjs-2';
 import { Chart, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-import { CurrencyEntity, CoinPageProps, ChartApiResponse } from '../interfaces';
+import { ChartApiResponse, CurrencyEntity } from '../interfaces';
 import { httpGet } from '../api/apiHandler';
 import { format, fromUnixTime } from 'date-fns';
 import './CoinPage.scss';
 import AddCoinsModal from '../modals/addCoinsModal/AddCoinsModal';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { usePortfolio } from '../context/PortfolioContext';
 const { Text } = Typography;
 const { Option } = Select;
 
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
+interface InitialChartData {
+    labels: string[];
+    datasets: {
+        label: string;
+        data: number[];
+        borderColor: string;
+        fill: boolean;
+    }[];
+}
 
-const CoinPage: React.FC<CoinPageProps> = ({ coin, onClose, onAddToPortfolio, chartData: initialChartData }) => {
-    const [chartData, setChartData] = useState(initialChartData || null);
-    const [loading, setLoading] = useState(!initialChartData);
+const CoinPage: React.FC = () => {
+    const [chartData, setChartData] = useState<InitialChartData | null>(null);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [timeRange, setTimeRange] = useState('d1');
-    const [addCoinsModalVisible, setAddCoinsModalVisible] = useState(false);
+    const { id } = useParams<{ id: string }>();
+    const { rank } = useParams<{ rank: string }>();
+    const {
+        coins,
+        handleCloseCoinInfo,
+        selectedCoin,
+        handleSelectCoin,
+        handleOpenAddCoinsModal
+    } = usePortfolio();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (id) {
+            handleSelectCoin(id);
+        }
+    }, [id, handleSelectCoin]);
+    useEffect(() => {
+        if (coins.length > 0) {
+            const selected = coins.find((coin: CurrencyEntity) => coin.rank === rank);
+            handleSelectCoin(selected ? selected.id : '');
+            if (!selected && rank) {
+                navigate('/error');
+            }
+        }
+    }, [rank, coins, handleSelectCoin, navigate]);
+
+
     useEffect(() => {
         const fetchChartData = async (range: string) => {
-            if (initialChartData) return;
-
             setLoading(true);
             setError('');
             try {
-                const response = await httpGet<ChartApiResponse>(`/assets/${coin.id}/history?interval=${range}`);
-                const data = response.data.data;
+                if (selectedCoin) {
+                    const response = await httpGet<ChartApiResponse>(`/assets/${selectedCoin.id}/history?interval=${range}`);
+                    const data = response.data.data;
 
-                const formattedData = {
-                    labels: data.map(entry => format(fromUnixTime(entry.time / 1000), 'dd.MM.yyyy')),
-                    datasets: [
-                        {
-                            label: `Цена ${coin.name} в USD`,
-                            data: data.map(entry => parseFloat(entry.priceUsd)),
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            fill: false,
-                        },
-                    ],
-                };
+                    const formattedData: InitialChartData = {
+                        labels: data.map(entry => format(fromUnixTime(entry.time / 1000), 'dd.MM.yyyy')),
+                        datasets: [
+                            {
+                                label: `Цена ${selectedCoin.name} в USD`,
+                                data: data.map(entry => parseFloat(entry.priceUsd)),
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                fill: false,
+                            },
+                        ],
+                    };
 
-                setChartData(formattedData);
-                localStorage.setItem(`chartData_${coin.id}_${range}`, JSON.stringify(formattedData));
+                    setChartData(formattedData);
+                    localStorage.setItem(`chartData_${selectedCoin.id}_${range}`, JSON.stringify(formattedData));
+                }
             } catch (error) {
                 setError('Ошибка при загрузке данных графика.');
             } finally {
@@ -52,8 +87,8 @@ const CoinPage: React.FC<CoinPageProps> = ({ coin, onClose, onAddToPortfolio, ch
             }
         };
 
-        if (!initialChartData) {
-            const savedData = localStorage.getItem(`chartData_${coin.id}_${timeRange}`);
+        if (selectedCoin) {
+            const savedData = localStorage.getItem(`chartData_${selectedCoin.id}_${timeRange}`);
             if (savedData) {
                 setChartData(JSON.parse(savedData));
                 setLoading(false);
@@ -61,33 +96,40 @@ const CoinPage: React.FC<CoinPageProps> = ({ coin, onClose, onAddToPortfolio, ch
                 fetchChartData(timeRange);
             }
         }
-    }, [coin.id, coin.name, timeRange, initialChartData]);
+    }, [timeRange, selectedCoin]);
 
     const handleTimeRangeChange = (value: string) => {
         setTimeRange(value);
     };
 
-    const handleAddToPortfolio = (coins: CurrencyEntity[]) => {
-        coins.forEach(onAddToPortfolio);
-        setAddCoinsModalVisible(false);
-    };
     const handleToClose = () => {
-        onClose();
-        navigate(`/`)
-}
+        handleCloseCoinInfo();
+        navigate(`/`);
+    };
+
+    useEffect(() => {
+        if (id && !selectedCoin) {
+            navigate('/error');
+        }
+    }, [id, selectedCoin, navigate]);
+
+    if (!selectedCoin) {
+        return null;
+    }
+
     return (
         <div className="coin-page">
             <div className="coin-info">
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' }}>
-                    <img width={50} src={`https://assets.coincap.io/assets/icons/${coin.symbol.toLowerCase()}@2x.png`} alt="Логотип" />
+                    <img width={50} src={`https://assets.coincap.io/assets/icons/${selectedCoin.symbol.toLowerCase()}@2x.png`} alt="Логотип" />
                     <div>
-                        <h1>{coin.name}</h1>
-                        <p>Символ: {coin.symbol}</p>
-                        <p>Ранг: {coin.rank}</p>
-                        <p>Предложение: {coin.supply}</p>
-                        <p>Цена в USD: ${coin.priceUsd}</p>
-                        <p>Рыночная капитализация в USD: ${coin.marketCapUsd}</p>
-                        <p>Максимальное предложение: {coin.maxSupply}</p>
+                        <h1>{selectedCoin.name}</h1>
+                        <p>Символ: {selectedCoin.symbol}</p>
+                        <p>Ранг: {selectedCoin.rank}</p>
+                        <p>Предложение: {selectedCoin.supply}</p>
+                        <p>Цена в USD: ${selectedCoin.priceUsd}</p>
+                        <p>Рыночная капитализация в USD: ${selectedCoin.marketCapUsd}</p>
+                        <p>Максимальное предложение: {selectedCoin.maxSupply}</p>
                     </div>
                 </div>
                 <Select defaultValue="d1" style={{ width: 120 }} onChange={handleTimeRangeChange}>
@@ -96,7 +138,7 @@ const CoinPage: React.FC<CoinPageProps> = ({ coin, onClose, onAddToPortfolio, ch
                     <Option value="h1">1 час</Option>
                 </Select>
                 <Button onClick={handleToClose} style={{ marginTop: '10px' }}>Назад</Button>
-                <Button type="primary" onClick={() => setAddCoinsModalVisible(true)} style={{ marginTop: '10px' }}>Добавить</Button>
+                <Button type="primary" onClick={() => handleOpenAddCoinsModal(selectedCoin)} style={{ marginTop: '10px' }}>Добавить</Button>
             </div>
             <div className="coin-chart">
                 {loading ? (
@@ -124,12 +166,7 @@ const CoinPage: React.FC<CoinPageProps> = ({ coin, onClose, onAddToPortfolio, ch
                     }} />
                 ) : null}
             </div>
-            <AddCoinsModal
-                open={addCoinsModalVisible}
-                onClose={() => setAddCoinsModalVisible(false)}
-                coins={[coin]}
-                onAddCoins={handleAddToPortfolio}
-            />
+            <AddCoinsModal />
         </div>
     );
 };

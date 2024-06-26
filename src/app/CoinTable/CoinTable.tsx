@@ -1,100 +1,21 @@
-
-import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
+import React, {  lazy, Suspense } from 'react';
 import { Spin } from 'antd';
-import { httpGet } from '../api/apiHandler';
 import CoinSearch from '../coinTableElement/coinSearch/CoinSearch';
 import CoinTableContent from '../coinTableElement/coinTableContent/CoinTableContent';
-import { CurrencyEntity, CoinTableProps } from '../interfaces';
 import styles from './CoinTable.module.scss';
-import { useParams, useNavigate } from 'react-router-dom';
+import { usePortfolio } from 'app/context/PortfolioContext';
 
 const CoinPage = lazy(() => import('../coinPage/CoinPage'));
 const PortfolioModal = lazy(() => import('../modals/portfolioModal/PortfolioModal'));
 const AddCoinsModal = lazy(() => import('../modals/addCoinsModal/AddCoinsModal'));
 
-
-const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDeleteCoin, totalPortfolioValue }) => {
-  const [coins, setCoins] = useState<CurrencyEntity[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedCoin, setSelectedCoin] = useState<CurrencyEntity | null>(null);
-  const [searchValue, setSearchValue] = useState<string>('');
-  const [searchLoading ] = useState(false);
-  const [portfolioVisible, setPortfolioVisible] = useState<boolean>(false);
-  const [addCoinsModalVisible, setAddCoinsModalVisible] = useState<boolean>(false);
-  const [coinForAdd, setCoinForAdd] = useState<CurrencyEntity | null>(null);
-  const { rank } = useParams<{ rank: string }>();
-  const navigate = useNavigate();
-
-
-  useEffect(() => {
-    fetchCoins();
-  }, []);
-
-  const fetchCoins = async () => {
-    setLoading(true);
-    try {
-      const response = await httpGet(`/assets`);
-      const responseData = response.data as { data: CurrencyEntity[] };
-      setCoins(responseData.data);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching coins:', error);
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (coins.length > 0) {
-      const selected = coins.find((coin: CurrencyEntity) => coin.rank === rank);
-      setSelectedCoin(selected || null);
-      if (!selected && rank) {
-        navigate('/error');
-      }
-    }
-  }, [rank, coins, navigate]);
-
-  const handleSearch = useCallback((value: string) => {
-    setSearchValue(value);
-  }, []);
-
-  const handleSelectCoin = (coinId: string) => {
-    const selected = coins.find((coin: CurrencyEntity) => coin.id === coinId);
-    if (selected) {
-      setSelectedCoin(selected);
-    }
-  };
-
-  const handleCloseCoinInfo = () => {
-    setSelectedCoin(null);
-  };
-
-  const handleOpenPortfolio = () => {
-    setPortfolioVisible(true);
-  };
-
-  const handleClosePortfolio = () => {
-    setPortfolioVisible(false);
-  };
-
-  const handleOpenAddCoinsModal = (coin: CurrencyEntity) => {
-    setCoinForAdd(coin);
-    setAddCoinsModalVisible(true);
-  };
-
-
-  const handleCloseAddCoinsModal = () => {
-    setAddCoinsModalVisible(false);
-    setCoinForAdd(null);
-  };
-
-  const handleAddToPortfolio = (coins: CurrencyEntity[]) => {
-    coins.forEach(onAddToPortfolio);
-    setCoinForAdd(null);
-  };
-
-  const filteredCoins = coins.filter(coin =>
-    coin.name.toLowerCase().includes(searchValue.toLowerCase())
-  );
+const CoinTable: React.FC = () => {
+  const {
+    loading,
+    selectedCoin,
+    searchLoading,
+    addCoinsModalVisible,
+  } = usePortfolio();
 
   return (
     <div className={styles.mainContainer}>
@@ -102,48 +23,27 @@ const CoinTable: React.FC<CoinTableProps> = ({ portfolio, onAddToPortfolio, onDe
         <Spin />
       ) : (
         <>
-
-
-            {!selectedCoin && (
-            <CoinSearch searchValue={searchValue} handleSearch={handleSearch} />
-          )}
+          {!selectedCoin && <CoinSearch />}
           {searchLoading && <div>Searching...</div>}
           {selectedCoin ? (
             <Suspense fallback={<Spin />}>
-              <CoinPage coin={selectedCoin} onClose={handleCloseCoinInfo} onAddToPortfolio={onAddToPortfolio} />
+              <CoinPage />
             </Suspense>
           ) : (
-            <CoinTableContent
-            coins={filteredCoins}
-            onSelectCoin={handleSelectCoin}
-            onAddToPortfolio={onAddToPortfolio}
-            onOpenAddCoinsModal={handleOpenAddCoinsModal}
-            onOpenPortfolio={handleOpenPortfolio}
-          />
+            <CoinTableContent />
           )}
           <Suspense fallback={<Spin />}>
-            <PortfolioModal
-              totalPortfolioValue={totalPortfolioValue}
-              visible={portfolioVisible}
-              onClose={handleClosePortfolio}
-              portfolio={portfolio}
-              onDelete={onDeleteCoin}
-            />
+            <PortfolioModal />
           </Suspense>
-          {coinForAdd && (
-  <Suspense fallback={<Spin />}>
-    <AddCoinsModal
-      open={addCoinsModalVisible}
-      onClose={handleCloseAddCoinsModal}
-      coins={[coinForAdd]}
-      onAddCoins={handleAddToPortfolio}
-    />
-  </Suspense>
-)}
-          </>
-        )}
-      </div>
-    );
-  };
+          {addCoinsModalVisible && (
+            <Suspense fallback={<Spin />}>
+              <AddCoinsModal />
+            </Suspense>
+          )}
+        </>
+      )}
+    </div>
+  );
+};
 
-  export default CoinTable;
+export default CoinTable;

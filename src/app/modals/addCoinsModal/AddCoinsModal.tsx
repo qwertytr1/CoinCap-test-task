@@ -1,18 +1,23 @@
 import React, { useState } from 'react';
 import { Modal, Button, InputNumber } from 'antd';
-import { AddCoinsModalProps } from '../../interfaces';
+import { usePortfolio } from 'app/context/PortfolioContext';
 
-const AddCoinsModal: React.FC<AddCoinsModalProps> = ({ open, onClose, coins, onAddCoins }) => {
+const AddCoinsModal: React.FC = () => {
   const [coinQuantities, setCoinQuantities] = useState<{ [key: string]: number }>({});
+  const {
+    addCoinsModalVisible,
+    handleCloseAddCoinsModal,
+    coinForAdd,
+    handleAddToPortfolio
+  } = usePortfolio();
 
   const handleAddCoins = () => {
-    const selectedCoins = coins
-      .filter(coin => coinQuantities[coin.id] > 0)
-      .map(coin => ({ ...coin, quantity: coinQuantities[coin.id] || 0 }));
-
-    onAddCoins(selectedCoins);
-    setCoinQuantities({});
-    onClose();
+    if (coinForAdd && coinQuantities[coinForAdd.id] > 0) {
+      const selectedCoin = { ...coinForAdd, quantity: coinQuantities[coinForAdd.id] || 0 };
+      handleAddToPortfolio([selectedCoin]);
+      setCoinQuantities({});
+      handleCloseAddCoinsModal();
+    }
   };
 
   const handleQuantityChange = (coinId: string, value: number | null) => {
@@ -25,26 +30,24 @@ const AddCoinsModal: React.FC<AddCoinsModalProps> = ({ open, onClose, coins, onA
   return (
     <Modal
       title="Добавление монет"
-      visible={open}
-      onCancel={onClose}
+      visible={addCoinsModalVisible}
+      onCancel={handleCloseAddCoinsModal}
       footer={[
-        <Button key="cancel" onClick={onClose}>Отмена</Button>,
+        <Button key="cancel" onClick={handleCloseAddCoinsModal}>Отмена</Button>,
         <Button key="add" type="primary" onClick={handleAddCoins}>Добавить</Button>,
       ]}
     >
-      <div>
-        {coins.map(coin => (
-          <div key={coin.id}>
-            <p>{coin.name} ({coin.symbol}) - {coin.priceUsd}</p>
-            <InputNumber
-              min={0}
-              value={coinQuantities[coin.id] || 0}
-              onChange={value => handleQuantityChange(coin.id, value)}
-            />
-            <p>Сумма: {((coinQuantities[coin.id] || 0) * parseFloat(coin.priceUsd)).toFixed(2)}</p>
-          </div>
-        ))}
-      </div>
+      {coinForAdd && (
+        <div key={coinForAdd.id}>
+          <p>{coinForAdd.name} ({coinForAdd.symbol}) - {coinForAdd.priceUsd}</p>
+          <InputNumber
+            min={0}
+            value={coinQuantities[coinForAdd.id] || 0}
+            onChange={value => handleQuantityChange(coinForAdd.id, value)}
+          />
+          <p>Сумма: {((coinQuantities[coinForAdd.id] || 0) * parseFloat(coinForAdd.priceUsd)).toFixed(2)}</p>
+        </div>
+      )}
     </Modal>
   );
 };

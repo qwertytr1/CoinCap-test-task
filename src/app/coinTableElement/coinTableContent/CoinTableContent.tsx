@@ -1,37 +1,39 @@
 import React from 'react';
 import { Table, Typography, Button } from 'antd';
-import { CurrencyEntity, CoinTableContentProps } from '../../interfaces';
-import { formatValue } from '../../utils/utils';
-import styles from './CoinTableContent.module.scss';
 import { useNavigate } from 'react-router-dom';
+import { usePortfolio } from 'app/context/PortfolioContext';
+import styles from './CoinTableContent.module.scss';
+import { CurrencyEntity } from 'app/interfaces';
 
 const { Column } = Table;
 const { Text } = Typography;
 
-const CoinTableContent: React.FC<CoinTableContentProps> = ({
-  coins,
-  onSelectCoin,
-  onOpenAddCoinsModal,
-}) => {
+const formatPrice = (value: number): string => {
+  if (value === 0) return '-';
+  if (value >= 1_000_000_000) return `$${(value / 1_000_000_000).toFixed(2)}b`;
+  if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(2)}m`;
+  if (value >= 1_000) return `$${(value / 1_000).toFixed(2)}k`;
+  return `$${value.toFixed(2)}`;
+};
+
+const CoinTableContent: React.FC = () => {
+  const { filteredCoins, handleSelectCoin, handleOpenAddCoinsModal } = usePortfolio();
   const navigate = useNavigate();
-  const uniqueCoins = Array.from(new Set(coins.map((coin) => coin.id))).map(
-    (id) => coins.find((coin) => coin.id === id) as CurrencyEntity
-  );
 
   const handleButtonClick = (event: React.MouseEvent, coin: CurrencyEntity) => {
     event.stopPropagation();
-    onOpenAddCoinsModal(coin);
+    handleOpenAddCoinsModal(coin);
   };
 
   return (
     <div className={styles.tableContainer}>
       <Table
-        dataSource={uniqueCoins}
+        dataSource={filteredCoins}
         rowKey="id"
         onRow={(record: CurrencyEntity) => ({
           onClick: () => {
             navigate(`/coin/${record.rank}`);
-            onSelectCoin(record.id);
+            handleSelectCoin(record.id);
           },
         })}
       >
@@ -67,7 +69,7 @@ const CoinTableContent: React.FC<CoinTableContentProps> = ({
           key="priceUsd"
           render={(value: string) => {
             const parsedValue = parseFloat(value);
-            return parsedValue !== 0 ? <div>${formatValue(value)}</div> : null;
+            return <div>{formatPrice(parsedValue)}</div>;
           }}
           sorter={(a: CurrencyEntity, b: CurrencyEntity) => parseFloat(a.priceUsd) - parseFloat(b.priceUsd)}
         />
@@ -77,7 +79,7 @@ const CoinTableContent: React.FC<CoinTableContentProps> = ({
           key="marketCapUsd"
           render={(value: string) => {
             const parsedValue = parseFloat(value);
-            return parsedValue !== 0 ? <div>${formatValue(value)}</div> : null;
+            return <div>{formatPrice(parsedValue)}</div>;
           }}
           sorter={(a: CurrencyEntity, b: CurrencyEntity) => parseFloat(a.marketCapUsd) - parseFloat(b.marketCapUsd)}
           responsive={['md']}
