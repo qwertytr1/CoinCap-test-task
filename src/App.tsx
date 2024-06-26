@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Header from "./app/header/Header";
@@ -11,7 +11,7 @@ const App: React.FC = () => {
   return (
     <>
       <ToastContainer />
-      <Router basename={process.env.PUBLIC_URL}>
+      <Router>
         <div className="App">
           <Header />
           <PortfolioModal />
