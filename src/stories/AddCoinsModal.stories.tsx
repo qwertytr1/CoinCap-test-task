@@ -14,7 +14,7 @@ const Template: StoryFn<AddCoinsModalProps> = (args) => {
   return (
     <div>
       <button onClick={() => setOpen(true)}>Open Modal</button>
-      <AddCoinsModal {...args} open={open} onClose={() => setOpen(false)} />
+      <AddCoinsModal />
     </div>
   );
 };

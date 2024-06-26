@@ -13,7 +13,7 @@ export default {
   component: Header,
 } as Meta;
 
-const Template: StoryFn<HeaderProps> = (args) => <Header {...args} />;
+const Template: StoryFn<HeaderProps> = (args) => <Header />;
 
 export const Default = Template.bind({});
 Default.args = {

@@ -8,7 +8,7 @@ export default {
   component: CoinTableContent,
 } as Meta;
 
-const Template: StoryFn<CoinTableContentProps> = (args) => <CoinTableContent {...args} />;
+const Template: StoryFn<CoinTableContentProps> = () => <CoinTableContent/>;
 
 export const Default = Template.bind({});
 Default.args = {

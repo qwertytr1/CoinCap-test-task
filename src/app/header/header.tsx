@@ -1,11 +1,14 @@
+import { usePortfolio } from 'app/context/PortfolioContext';
 import React, { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 import { httpGet } from '../api/apiHandler';
-import { CurrencyEntity, HeaderProps } from '../interfaces';
+import { CurrencyEntity } from '../interfaces';
 import './Header.scss';
 
 
 
-const Header: React.FC<HeaderProps> = ({ portfolio, onOpenPortfolio, totalPortfolioValue }) => {
+const Header: React.FC = () => {
+  const { portfolio, portfolioCostDifference, handleOpenPortfolio } = usePortfolio();
   const [cryptoRates, setCryptoRates] = useState<CurrencyEntity[]>([]);
   const [topThreeCryptos, setTopThreeCryptos] = useState<CurrencyEntity[]>([]);
   const [initialPortfolioValue, setInitialPortfolioValue] = useState<number>(0);
@@ -17,7 +20,7 @@ const Header: React.FC<HeaderProps> = ({ portfolio, onOpenPortfolio, totalPortfo
         const response = await httpGet<{ data: CurrencyEntity[] }>('/assets');
         setCryptoRates(response.data.data);
       } catch (error) {
-        console.error('Ошибка при получении данных о криптовалютах:', error);
+        toast.error('Ошибка при получении данных о криптовалютах');
       }
     };
 
@@ -36,8 +39,7 @@ const Header: React.FC<HeaderProps> = ({ portfolio, onOpenPortfolio, totalPortfo
       setTopThreeCryptos(topThree);
     }
   }, [cryptoRates]);
-
-  const portfolioChange = totalPortfolioValue - initialPortfolioValue;
+  const portfolioChange = portfolioCostDifference - initialPortfolioValue;
   const portfolioChangePercentage = initialPortfolioValue !== 0 ? ((portfolioChange / initialPortfolioValue) * 100).toFixed(2) : '0.00';
 
   return (
@@ -51,8 +53,8 @@ const Header: React.FC<HeaderProps> = ({ portfolio, onOpenPortfolio, totalPortfo
           ))}
         </div>
       </div>
-      <div className="portfolio-value" onClick={onOpenPortfolio}>
-        {totalPortfolioValue.toFixed(2)} USD {portfolioChange >= 0 ? '+' : ''}{portfolioChange.toFixed(2)} ({portfolioChangePercentage}%)
+      <div className="portfolio-value" onClick={handleOpenPortfolio}>
+        {portfolioCostDifference.toFixed(2)} USD {portfolioChange >= 0 ? '+' : ''}{portfolioChange.toFixed(2)} ({portfolioChangePercentage}%)
       </div>
     </div>
   );
