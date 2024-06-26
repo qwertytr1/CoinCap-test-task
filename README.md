@@ -1,5 +1,5 @@
 ## Deploy 
-https://coincaptest.netlify.app
+https://qwertytr1.github.io/CoinCap-test-task/#/
 
 ## Available Scripts
 
