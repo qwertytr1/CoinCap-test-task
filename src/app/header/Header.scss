@@ -11,77 +11,94 @@
   box-sizing: border-box;
 
   @media (max-width: 1280px) {
-  flex-direction: column;
-  height: auto;
-  padding: 12px 15px;
+    flex-direction: column;
+    height: auto;
+    padding: 12px 15px;
   }
 
   @media (max-width: 1000px) {
-  padding: 10px 15px;
+    padding: 10px 15px;
   }
 
   @media (max-width: 900px) {
-  padding: 10px 10px;
+    padding: 10px 10px;
   }
 
   @media (max-width: 770px) {
-  padding: 10px;
+    padding: 10px;
   }
 
   @media (max-width: 480px) {
-  padding: 10px;
+    padding: 10px;
   }
-  }
+}
 
-  .crypto-rates-container {
+.crypto-rates-container {
   overflow: hidden;
   flex-grow: 1;
 
   @media (max-width: 768px) {
-  width: 100%;
-  margin-bottom: 10px;
+    width: 100%;
+    margin-bottom: 10px;
   }
-  }
+}
 
-  .crypto-rates {
+.crypto-rates {
   display: flex;
   white-space: nowrap;
   animation: marquee 50s linear infinite;
 
   @keyframes marquee {
-  0% {
-  transform: translateX(100%);
-  }
-  100% {
-  transform: translateX(-100%);
-  }
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
   }
 
   @media (max-width: 768px) {
-  animation: marquee 30s linear infinite;
-  font-size: 14px;
+    animation: marquee 30s linear infinite;
+    font-size: 14px;
   }
 
   @media (max-width: 480px) {
-  animation: marquee 20s linear infinite;
-  font-size: 12px;
+    animation: marquee 20s linear infinite;
+    font-size: 12px;
   }
-  }
+}
 
-  .ticker {
+.ticker {
   display: inline-block;
   padding: 0 15px;
 
   @media (max-width: 768px) {
-  padding: 0 10px;
+    padding: 0 10px;
   }
 
   @media (max-width: 480px) {
-  padding: 0 5px;
+    padding: 0 5px;
   }
-  }
+}
 
-  .portfolio-value {
+.price {
+  margin-left: 5px;
+}
+
+.price.updated {
+  animation: priceUpdate 1s ease-in-out;
+
+  @keyframes priceUpdate {
+    0%, 100% {
+      background-color: transparent;
+    }
+    50% {
+      background-color: #28a745;
+    }
+  }
+}
+
+.portfolio-value {
   cursor: pointer;
   font-weight: bold;
   background-color: #ff9800;
@@ -90,23 +107,22 @@
   border-radius: 5px;
   transition: background-color 0.3s;
 
-  &
-  {
-  background-color: #fb8c00;
+  &:hover {
+    background-color: #fb8c00;
   }
 
   @media (max-width: 1280px) {
-  padding: 14px;
-  font-size: 14px;
+    padding: 14px;
+    font-size: 14px;
   }
 
   @media (max-width: 768px) {
-  padding: 10px;
-  font-size: 12px;
+    padding: 10px;
+    font-size: 12px;
   }
 
   @media (max-width: 480px) {
-  padding: 8px;
-  font-size: 12px;
+    padding: 8px;
+    font-size: 12px;
   }
-  }
+}

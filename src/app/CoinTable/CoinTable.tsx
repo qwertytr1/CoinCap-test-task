@@ -12,26 +12,28 @@ const AddCoinsModal = lazy(() => import('../modals/addCoinsModal/AddCoinsModal')
 const CoinTable: React.FC = () => {
   const {
     loading,
+    coins,
     selectedCoin,
     searchLoading,
     addCoinsModalVisible,
   } = usePortfolio();
 
+
+  if (loading && coins.length === 0) {
+    return <Spin />;
+  }
+
   return (
     <div className={styles.mainContainer}>
-      {loading ? (
-        <Spin />
+      {!selectedCoin && <CoinSearch />}
+      {searchLoading && <div>Searching...</div>}
+      {selectedCoin ? (
+        <Suspense fallback={<Spin />}>
+          <CoinPage />
+        </Suspense>
       ) : (
-        <>
-          {!selectedCoin && <CoinSearch />}
-          {searchLoading && <div>Searching...</div>}
-          {selectedCoin ? (
-            <Suspense fallback={<Spin />}>
-              <CoinPage />
-            </Suspense>
-          ) : (
-            <CoinTableContent />
-          )}
+        <CoinTableContent />
+      )}
           <Suspense fallback={<Spin />}>
             <PortfolioModal />
           </Suspense>
@@ -39,11 +41,9 @@ const CoinTable: React.FC = () => {
             <Suspense fallback={<Spin />}>
               <AddCoinsModal />
             </Suspense>
-          )}
-        </>
-      )}
-    </div>
-  );
-};
+         )}
+         </div>
+       );
+     };
 
 export default CoinTable;

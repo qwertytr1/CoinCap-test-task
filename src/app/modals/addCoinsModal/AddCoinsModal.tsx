@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Modal, Button, InputNumber } from 'antd';
 import { usePortfolio } from 'app/context/PortfolioContext';
 
@@ -11,21 +11,21 @@ const AddCoinsModal: React.FC = () => {
     handleAddToPortfolio
   } = usePortfolio();
 
-  const handleAddCoins = () => {
+  const handleAddCoins = useCallback(() => {
     if (coinForAdd && coinQuantities[coinForAdd.id] > 0) {
       const selectedCoin = { ...coinForAdd, quantity: coinQuantities[coinForAdd.id] || 0 };
       handleAddToPortfolio([selectedCoin]);
       setCoinQuantities({});
       handleCloseAddCoinsModal();
     }
-  };
+  }, [coinForAdd, coinQuantities, handleAddToPortfolio, handleCloseAddCoinsModal]);
 
-  const handleQuantityChange = (coinId: string, value: number | null) => {
+  const handleQuantityChange = useCallback((coinId: string, value: number | null) => {
     setCoinQuantities(prev => ({
       ...prev,
       [coinId]: value || 0,
     }));
-  };
+  }, []);
 
   return (
     <Modal
@@ -52,4 +52,4 @@ const AddCoinsModal: React.FC = () => {
   );
 };
 
-export default AddCoinsModal;
+export default React.memo(AddCoinsModal);

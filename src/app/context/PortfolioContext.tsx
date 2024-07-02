@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode, useMemo } from 'react';
 import { toast } from 'react-toastify';
 import { CurrencyEntity } from '../interfaces';
 import { getStorageItem, setStorageItem } from '../utils/utils';
@@ -24,7 +24,6 @@ interface PortfolioContextType {
   handleClosePortfolio: () => void;
   handleAddToPortfolio: (coin: CurrencyEntity[]) => void;
   handleDeleteCoin: (id: string) => void;
-  fetchCryptoRates: () => Promise<void>;
   filteredCoins: CurrencyEntity[];
 }
 
@@ -58,8 +57,20 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
       setLoading(false);
     } catch (error) {
       setLoading(false);
+      toast.error(`Ошибка при получении списка криптовалют: ${error}`);
     }
   };
+
+  const updatePortfolio = useCallback((coinsData: CurrencyEntity[], currentPortfolio: CurrencyEntity[]) => {
+    const updatedPortfolio = currentPortfolio.map(coin => {
+      const updatedCoin = coinsData.find(apiCoin => apiCoin.id === coin.id);
+      return updatedCoin ? { ...coin, priceUsd: updatedCoin.priceUsd } : coin;
+    });
+
+    if (JSON.stringify(updatedPortfolio) !== JSON.stringify(currentPortfolio)) {
+      setPortfolio(updatedPortfolio);
+    }
+  }, []);
 
   const handleSearch = useCallback((value: string) => {
     setSearchValue(value);
@@ -70,39 +81,19 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
     setSelectedCoin(selected || null);
   }, [coins]);
 
-  const handleCloseCoinInfo = () => {
+  const handleCloseCoinInfo = useCallback(() => {
     setSelectedCoin(null);
-  };
+  }, []);
 
-  const handleOpenAddCoinsModal = (coin: CurrencyEntity) => {
+  const handleOpenAddCoinsModal = useCallback((coin: CurrencyEntity) => {
     setCoinForAdd(coin);
     setAddCoinsModalVisible(true);
-  };
+  }, []);
 
-  const handleCloseAddCoinsModal = () => {
+  const handleCloseAddCoinsModal = useCallback(() => {
     setAddCoinsModalVisible(false);
     setCoinForAdd(null);
-  };
-
-  const fetchCryptoRates = useCallback(async () => {
-    try {
-      const { data: { data: coinsData } } = await httpGet<{ data: CurrencyEntity[] }>('/assets');
-
-      const updatedPortfolio = portfolio.map(coin => {
-        const updatedCoin = coinsData.find(apiCoin => apiCoin.id === coin.id);
-        if (updatedCoin) {
-          return { ...coin, priceUsd: updatedCoin.priceUsd };
-        }
-        return coin;
-      });
-
-      if (JSON.stringify(updatedPortfolio) !== JSON.stringify(portfolio)) {
-        setPortfolio(updatedPortfolio);
-      }
-    } catch (error) {
-      toast.error(`Ошибка при получении списка криптовалют: ${error}`);
-    }
-  }, [portfolio]);
+  }, []);
 
   useEffect(() => {
     const storedPortfolio = getStorageItem('portfolio');
@@ -114,65 +105,61 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
   useEffect(() => {
     setStorageItem('portfolio', portfolio);
     setPortfolioCostDifference(calculateDifference(portfolio));
-  }, [portfolio]);
+    updatePortfolio(coins, portfolio);
+  }, [portfolio, coins,updatePortfolio]);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      fetchCryptoRates();
+      fetchCoins();
     }, 10000);
 
     return () => clearInterval(interval);
-  }, [fetchCryptoRates]);
+  }, []);
 
   const calculateDifference = (portfolio: CurrencyEntity[]) => {
     return portfolio.reduce((acc, coin) => acc + (parseFloat(coin.priceUsd) * (coin.quantity || 0)), 0);
   };
 
-  const handleOpenPortfolio = () => {
+  const handleOpenPortfolio = useCallback(() => {
     setPortfolioVisible(true);
-  };
+  }, []);
 
-  const handleAddToPortfolio = (coins: CurrencyEntity[]) => {
-    coins.forEach(coin => {
-      if (coin.quantity < 0.01 || coin.quantity > 1000) {
-        toast.error('Количество монет должно быть в диапазоне от 0.01 до 1000');
-        return;
-      }
+  const handleAddToPortfolio = useCallback((coins: CurrencyEntity[]) => {
+    setPortfolio(prevPortfolio => {
+      const newPortfolio = [...prevPortfolio];
 
-      const existingCoin = portfolio.find(portfolioCoin => portfolioCoin.id === coin.id);
+      coins.forEach(coin => {
+        if (coin.quantity < 0.01 || coin.quantity > 1000) {
+          toast.error('Количество монет должно быть в диапазоне от 0.01 до 1000');
+          return;
+        }
 
-      if (existingCoin) {
-        const updatedPortfolio = portfolio.map(portfolioCoin => {
-          if (portfolioCoin.id === coin.id) {
-            return {
-              ...portfolioCoin,
-              quantity: portfolioCoin.quantity + coin.quantity,
-            };
-          }
-          return portfolioCoin;
-        });
+        const existingCoin = newPortfolio.find(portfolioCoin => portfolioCoin.id === coin.id);
 
-        setPortfolio(updatedPortfolio);
-      } else {
-        setPortfolio(prevPortfolio => [...prevPortfolio, { ...coin, purchasePrice: parseFloat(coin.priceUsd) }]);
-      }
+        if (existingCoin) {
+          existingCoin.quantity += coin.quantity;
+        } else {
+          newPortfolio.push({ ...coin, purchasePrice: parseFloat(coin.priceUsd) });
+        }
+      });
+
+      return newPortfolio;
     });
-  };
+  }, []);
 
-  const handleClosePortfolio = () => {
+  const handleClosePortfolio = useCallback(() => {
     setPortfolioVisible(false);
-  };
+  }, []);
 
-  const handleDeleteCoin = (id: string) => {
-    const updatedPortfolio = portfolio.filter(coin => coin.id !== id);
-    setPortfolio(updatedPortfolio);
-  };
+  const handleDeleteCoin = useCallback((id: string) => {
+    setPortfolio(prevPortfolio => prevPortfolio.filter(coin => coin.id !== id));
+  }, []);
 
-  const filteredCoins = coins.filter(coin =>
+  const filteredCoins = useMemo(() => coins.filter(coin =>
     coin.name.toLowerCase().includes(searchValue.toLowerCase())
-  );
+  ), [coins, searchValue]);
 
-  const contextValue: PortfolioContextType = {
+  const contextValue = useMemo(() => ({
     coins,
     loading,
     selectedCoin,
@@ -192,9 +179,29 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
     handleClosePortfolio,
     handleAddToPortfolio,
     handleDeleteCoin,
-    fetchCryptoRates,
     filteredCoins,
-  };
+  }), [
+    coins,
+    loading,
+    selectedCoin,
+    searchValue,
+    addCoinsModalVisible,
+    coinForAdd,
+    portfolio,
+    portfolioVisible,
+    portfolioCostDifference,
+    searchLoading,
+    handleSearch,
+    handleSelectCoin,
+    handleCloseCoinInfo,
+    handleOpenAddCoinsModal,
+    handleCloseAddCoinsModal,
+    handleOpenPortfolio,
+    handleClosePortfolio,
+    handleAddToPortfolio,
+    handleDeleteCoin,
+    filteredCoins,
+  ]);
 
   return (
     <PortfolioContext.Provider value={contextValue}>
