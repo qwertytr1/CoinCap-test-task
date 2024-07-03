@@ -107,12 +107,6 @@ const CoinPage: React.FC = () => {
         navigate(`/`);
     };
 
-    useEffect(() => {
-        if (id && !selectedCoin) {
-            navigate('/error');
-        }
-    }, [id, selectedCoin, navigate]);
-
     if (!selectedCoin) {
         return null;
     }
