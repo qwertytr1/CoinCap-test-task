@@ -1,5 +1,5 @@
-import React from 'react';
-import { Table, Typography, Button } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Table, Typography, Button, Pagination } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { usePortfolio } from 'app/context/PortfolioContext';
 import styles from './CoinTableContent.module.scss';
@@ -17,14 +17,20 @@ const formatPrice = (value: number): string => {
 };
 
 const CoinTableContent: React.FC = () => {
-  const { filteredCoins, handleSelectCoin, handleOpenAddCoinsModal } = usePortfolio();
+  const { totalElement, filteredCoins, handleSelectCoin, handleOpenAddCoinsModal, pagination, handleTableChange, handlePageSizeChange } = usePortfolio();
   const navigate = useNavigate();
-
   const handleButtonClick = (event: React.MouseEvent, coin: CurrencyEntity) => {
     event.stopPropagation();
     handleOpenAddCoinsModal(coin);
   };
+  const [cachedData, setCachedData] = useState<{ [key: string]: CurrencyEntity[] }>({});
 
+  useEffect(() => {
+    setCachedData(prevState => ({
+      ...prevState,
+      [pagination.current.toString()]: filteredCoins,
+    }));
+  }, [filteredCoins, pagination.current]);
   return (
     <div className={styles.tableContainer}>
       <Table
@@ -36,6 +42,7 @@ const CoinTableContent: React.FC = () => {
             handleSelectCoin(record.id);
           },
         })}
+        pagination={false}
       >
         <Column title="#" dataIndex="rank" key="rank" responsive={['lg']} />
         <Column
@@ -106,6 +113,16 @@ const CoinTableContent: React.FC = () => {
           responsive={['sm']}
         />
       </Table>
+      <Pagination
+        current={pagination.current}
+        pageSize={pagination.pageSize}
+        total={totalElement}
+        onChange={(page, pageSize) => handleTableChange({ current: page, pageSize })}
+        onShowSizeChange={(current, size) => handlePageSizeChange(size)} // Обработчик изменения размера страницы
+        className={styles.pagination}
+        showSizeChanger
+        pageSizeOptions={['10', '20', '50']}
+      />
     </div>
   );
 };
