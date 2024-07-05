@@ -32,7 +32,6 @@ interface PortfolioContextType {
   pagination: {
     current: number;
     pageSize: number;
-
   };
   totalElement: number;
   isCoinPage: boolean;
@@ -60,9 +59,10 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
     current: 1,
     pageSize: 10,
   });
-  const [totalElement,setTotalElement] = useState<number>(0)
+  const [totalElement, setTotalElement] = useState<number>(0);
   const [isCoinPage, setIsCoinPage] = useState<boolean>(false);
-  const fetchCurrentCoins = async () => {
+
+  const fetchCurrentCoins = useCallback(async () => {
     setLoading(true);
     try {
       const offset = (pagination.current - 1) * pagination.pageSize;
@@ -74,9 +74,9 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
       setLoading(false);
       toast.error(`Ошибка при получении списка криптовалют: ${error}`);
     }
-  };
+  }, [pagination.current, pagination.pageSize]);
 
-  const fetchCoins = async () => {
+  const fetchCoins = useCallback(async () => {
     setLoading(true);
     try {
       const response = await httpGet(`/assets`);
@@ -88,40 +88,30 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
       setLoading(false);
       toast.error(`Ошибка при получении списка криптовалют: ${error}`);
     }
-  };
+  }, []);
 
-  useEffect(() => {
-    if (isCoinPage==true) {
-      fetchCoins();
-    }
-    else {
-      if(pagination.current, pagination.pageSize,isCoinPage == false){
-          fetchCoins();
-    fetchCurrentCoins();}
-    }
-
-},[isCoinPage,pagination.current, pagination.pageSize])
   useEffect(() => {
     if (isCoinPage) {
-      const interval = setInterval(() => {
-        fetchCoins();
-      }, 10000);
-
-      return () => clearInterval(interval);
+      fetchCoins();
     } else {
-      const interval = setInterval(() => {
+      fetchCoins();
+      fetchCurrentCoins();
+    }
+  }, [isCoinPage, fetchCoins, fetchCurrentCoins]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (isCoinPage) {
+        fetchCoins();
+      } else {
         fetchCoins();
         fetchCurrentCoins();
-      }, 10000);
+      }
+    }, 10000);
 
-      return () => clearInterval(interval);
-    }
-  }, [pagination.current, pagination.pageSize, isCoinPage]);
+    return () => clearInterval(interval);
+  }, [pagination.current, pagination.pageSize, isCoinPage, fetchCoins, fetchCurrentCoins]);
 
-//   useEffect(() => {
-//     fetchCoins();
-//     fetchCurrentCoins();
-// }, [pagination.current, pagination.pageSize]);
   const updatePortfolio = useCallback((coinsData: CurrencyEntity[], currentPortfolio: CurrencyEntity[]) => {
     const updatedPortfolio = currentPortfolio.map(coin => {
       const updatedCoin = coinsData.find(apiCoin => apiCoin.id === coin.id);
@@ -169,11 +159,9 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
     updatePortfolio(coins, portfolio);
   }, [portfolio, coins, updatePortfolio]);
 
-
-
-  const calculateDifference = (portfolio: CurrencyEntity[]) => {
+  const calculateDifference = useCallback((portfolio: CurrencyEntity[]) => {
     return portfolio.reduce((acc, coin) => acc + (parseFloat(coin.priceUsd) * (coin.quantity || 0)), 0);
-  };
+  }, []);
 
   const handleOpenPortfolio = useCallback(() => {
     setPortfolioVisible(true);
@@ -216,6 +204,7 @@ export const PortfolioProvider: React.FC<{ children: ReactNode }> = ({ children 
       pageSize: pagination.pageSize,
     });
   }, []);
+
   const handlePageSizeChange = useCallback((pageSize: number) => {
     setPagination(prevPagination => ({
       ...prevPagination,

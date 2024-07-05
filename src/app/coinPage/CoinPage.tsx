@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Button, Spin, Typography, Select } from 'antd';
 import { Line } from 'react-chartjs-2';
 import { Chart, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
@@ -9,26 +9,16 @@ import './CoinPage.scss';
 import AddCoinsModal from '../modals/addCoinsModal/AddCoinsModal';
 import { useNavigate, useParams } from 'react-router-dom';
 import { usePortfolio } from '../context/PortfolioContext';
+import { toast } from 'react-toastify';
 
 const { Text } = Typography;
 const { Option } = Select;
 
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-interface InitialChartData {
-  labels: string[];
-  datasets: {
-    label: string;
-    data: number[];
-    borderColor: string;
-    fill: boolean;
-  }[];
-}
+
 
 const CoinPage: React.FC = () => {
-  const [chartData, setChartData] = useState<InitialChartData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [timeRange, setTimeRange] = useState('d1');
   const { id } = useParams<{ id: string }>();
   const { rank } = useParams<{ rank: string }>();
@@ -38,10 +28,11 @@ const CoinPage: React.FC = () => {
     selectedCoin,
     handleSelectCoin,
     handleOpenAddCoinsModal,
-      setIsCoinPage,
-      fetchCoins
+    setIsCoinPage,
+    loading,
   } = usePortfolio();
   const navigate = useNavigate();
+
   useEffect(() => {
     setIsCoinPage(true);
     return () => {
@@ -66,53 +57,45 @@ const CoinPage: React.FC = () => {
     }
   }, [rank, currentCoins, handleSelectCoin, navigate]);
 
-  useEffect(() => {
-    const fetchChartData = async () => {
-      setLoading(true);
-      setError('');
-      if (!selectedCoin) {
-        setLoading(false);
-        return;
-      }
+  const fetchChartData = useCallback(async (coinId: string, range: string) => {
 
-      const range = timeRange;
-      const coinId = selectedCoin.id;
+    try {
+      const response = await httpGet<ChartApiResponse>(`/assets/${coinId}/history?interval=${range}`);
+      const data = response.data.data;
 
-      try {
-        const response = await httpGet<ChartApiResponse>(`/assets/${coinId}/history?interval=${range}`);
-        const data = response.data.data;
+      return {
+        labels: data.map(entry => format(fromUnixTime(entry.time / 1000), 'dd.MM.yyyy')),
+        datasets: [
+          {
+            label: `Цена ${selectedCoin?.name} в USD`,
+            data: data.map(entry => parseFloat(entry.priceUsd)),
+            borderColor: 'rgba(75, 192, 192, 1)',
+            fill: false,
+          },
+        ],
+      };
+    } catch (error) {
+      toast.error('Ошибка при загрузке данных графика.');
+      return null;
+    }
+  }, [selectedCoin]);
 
-        const formattedData: InitialChartData = {
-          labels: data.map(entry => format(fromUnixTime(entry.time / 1000), 'dd.MM.yyyy')),
-          datasets: [
-            {
-              label: `Цена ${selectedCoin.name} в USD`,
-              data: data.map(entry => parseFloat(entry.priceUsd)),
-              borderColor: 'rgba(75, 192, 192, 1)',
-              fill: false,
-            },
-          ],
-        };
-
-        setChartData(formattedData);
-        localStorage.setItem(`chartData_${coinId}_${range}`, JSON.stringify(formattedData));
-      } catch (error) {
-        setError('Ошибка при загрузке данных графика.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
+  const chartData = useMemo(() => {
     if (selectedCoin) {
       const savedData = localStorage.getItem(`chartData_${selectedCoin.id}_${timeRange}`);
       if (savedData) {
-        setChartData(JSON.parse(savedData));
-        setLoading(false);
+        return JSON.parse(savedData);
       } else {
-        fetchChartData();
+        fetchChartData(selectedCoin.id, timeRange).then(data => {
+          if (data) {
+            localStorage.setItem(`chartData_${selectedCoin.id}_${timeRange}`, JSON.stringify(data));
+            return data;
+          }
+        });
       }
     }
-  }, [timeRange, selectedCoin]);
+    return null;
+  }, [timeRange, selectedCoin, fetchChartData]);
 
   const handleTimeRangeChange = (value: string) => {
     setTimeRange(value);
