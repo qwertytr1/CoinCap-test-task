@@ -8,7 +8,7 @@ export default {
   component: CoinSearch,
 } as Meta;
 
-const Template: StoryFn<CoinSearchProps> = (args) => <CoinSearch {...args} />;
+const Template: StoryFn<CoinSearchProps> = () => <CoinSearch />;
 
 export const Default = Template.bind({});
 Default.args = {

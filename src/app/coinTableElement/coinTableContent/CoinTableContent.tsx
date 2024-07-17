@@ -1,39 +1,48 @@
-import React from 'react';
-import { Table, Typography, Button } from 'antd';
-import { CurrencyEntity, CoinTableContentProps } from '../../interfaces';
-import { formatValue } from '../../utils/utils';
-import styles from './CoinTableContent.module.scss';
+import React, { useEffect, useState } from 'react';
+import { Table, Typography, Button, Pagination } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { usePortfolio } from 'app/context/PortfolioContext';
+import styles from './CoinTableContent.module.scss';
+import { CurrencyEntity } from 'app/interfaces';
 
 const { Column } = Table;
 const { Text } = Typography;
 
-const CoinTableContent: React.FC<CoinTableContentProps> = ({
-  coins,
-  onSelectCoin,
-  onOpenAddCoinsModal,
-}) => {
-  const navigate = useNavigate();
-  const uniqueCoins = Array.from(new Set(coins.map((coin) => coin.id))).map(
-    (id) => coins.find((coin) => coin.id === id) as CurrencyEntity
-  );
+const formatPrice = (value: number): string => {
+  if (value === 0) return '-';
+  if (value >= 1_000_000_000) return `$${(value / 1_000_000_000).toFixed(2)}b`;
+  if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(2)}m`;
+  if (value >= 1_000) return `$${(value / 1_000).toFixed(2)}k`;
+  return `$${value.toFixed(2)}`;
+};
 
+const CoinTableContent: React.FC = () => {
+  const { totalElement, filteredCoins, handleSelectCoin, handleOpenAddCoinsModal, pagination, handleTableChange, handlePageSizeChange } = usePortfolio();
+  const navigate = useNavigate();
   const handleButtonClick = (event: React.MouseEvent, coin: CurrencyEntity) => {
     event.stopPropagation();
-    onOpenAddCoinsModal(coin);
+    handleOpenAddCoinsModal(coin);
   };
+  const [cachedData, setCachedData] = useState<{ [key: string]: CurrencyEntity[] }>({});
 
+  useEffect(() => {
+    setCachedData(prevState => ({
+      ...prevState,
+      [pagination.current.toString()]: filteredCoins,
+    }));
+  }, [filteredCoins, pagination.current]);
   return (
     <div className={styles.tableContainer}>
       <Table
-        dataSource={uniqueCoins}
+        dataSource={filteredCoins}
         rowKey="id"
         onRow={(record: CurrencyEntity) => ({
           onClick: () => {
             navigate(`/coin/${record.rank}`);
-            onSelectCoin(record.id);
+            handleSelectCoin(record.id);
           },
         })}
+        pagination={false}
       >
         <Column title="#" dataIndex="rank" key="rank" responsive={['lg']} />
         <Column
@@ -67,7 +76,7 @@ const CoinTableContent: React.FC<CoinTableContentProps> = ({
           key="priceUsd"
           render={(value: string) => {
             const parsedValue = parseFloat(value);
-            return parsedValue !== 0 ? <div>${formatValue(value)}</div> : null;
+            return <div>{formatPrice(parsedValue)}</div>;
           }}
           sorter={(a: CurrencyEntity, b: CurrencyEntity) => parseFloat(a.priceUsd) - parseFloat(b.priceUsd)}
         />
@@ -77,7 +86,7 @@ const CoinTableContent: React.FC<CoinTableContentProps> = ({
           key="marketCapUsd"
           render={(value: string) => {
             const parsedValue = parseFloat(value);
-            return parsedValue !== 0 ? <div>${formatValue(value)}</div> : null;
+            return <div>{formatPrice(parsedValue)}</div>;
           }}
           sorter={(a: CurrencyEntity, b: CurrencyEntity) => parseFloat(a.marketCapUsd) - parseFloat(b.marketCapUsd)}
           responsive={['md']}
@@ -104,6 +113,16 @@ const CoinTableContent: React.FC<CoinTableContentProps> = ({
           responsive={['sm']}
         />
       </Table>
+      <Pagination
+        current={pagination.current}
+        pageSize={pagination.pageSize}
+        total={totalElement}
+        onChange={(page, pageSize) => handleTableChange({ current: page, pageSize })}
+        onShowSizeChange={(current, size) => handlePageSizeChange(size)} // Обработчик изменения размера страницы
+        className={styles.pagination}
+        showSizeChanger
+        pageSizeOptions={['10', '20', '50']}
+      />
     </div>
   );
 };

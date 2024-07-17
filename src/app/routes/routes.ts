@@ -1,7 +1,6 @@
-
 import CoinTable from '../coinTable/CoinTable';
+import CoinPage from '../coinPage/CoinPage';  // New import
 import ErrorPage from '../errorPage/ErrorPage';
-
 
 const routes = [
   {
@@ -12,7 +11,7 @@ const routes = [
   {
     name: 'Coin Details',
     path: '/coin/:rank',
-    component: CoinTable,
+    component: CoinPage,
   },
   {
     name: 'Error',

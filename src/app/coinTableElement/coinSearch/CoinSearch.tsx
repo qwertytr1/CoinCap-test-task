@@ -1,15 +1,14 @@
-
 import React, { useState } from 'react';
 import { Input } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
-import './CoinSearch.module.scss';
-import { CoinSearchProps } from '../../interfaces';
+import { usePortfolio } from 'app/context/PortfolioContext';
 
 const { Search } = Input;
 
-const CoinSearch: React.FC<CoinSearchProps> = ({ handleSearch }) => {
-  const [inputValue, setInputValue] = useState<string>('');
+const CoinSearch: React.FC = () => {
 
+  const { handleSearch } = usePortfolio();
+  const [inputValue, setInputValue] = useState<string>('');
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     setInputValue(value);

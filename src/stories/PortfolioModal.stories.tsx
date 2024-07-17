@@ -8,7 +8,7 @@ export default {
   component: PortfolioModal,
 } as Meta;
 
-const Template: StoryFn<PortfolioModalProps> = (args) => <PortfolioModal {...args} />;
+const Template: StoryFn<PortfolioModalProps> = (args) => <PortfolioModal />;
 
 export const Default = Template.bind({});
 Default.args = {

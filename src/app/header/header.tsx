@@ -1,28 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { httpGet } from '../api/apiHandler';
-import { CurrencyEntity, HeaderProps } from '../interfaces';
+import { CurrencyEntity } from 'app/interfaces';
+import React, { useEffect, useState, useRef } from 'react';
+import { usePortfolio } from '../context/PortfolioContext';
 import './Header.scss';
 
-
-
-const Header: React.FC<HeaderProps> = ({ portfolio, onOpenPortfolio, totalPortfolioValue }) => {
-  const [cryptoRates, setCryptoRates] = useState<CurrencyEntity[]>([]);
+const Header: React.FC = () => {
+  const {
+    portfolio,
+    coins,
+    portfolioCostDifference,
+    handleOpenPortfolio,
+  } = usePortfolio();
   const [topThreeCryptos, setTopThreeCryptos] = useState<CurrencyEntity[]>([]);
   const [initialPortfolioValue, setInitialPortfolioValue] = useState<number>(0);
-
-
-  useEffect(() => {
-    const fetchCryptoRates = async () => {
-      try {
-        const response = await httpGet<{ data: CurrencyEntity[] }>('/assets');
-        setCryptoRates(response.data.data);
-      } catch (error) {
-        console.error('Ошибка при получении данных о криптовалютах:', error);
-      }
-    };
-
-    fetchCryptoRates();
-  }, []);
+  const [updatedCryptoIds, setUpdatedCryptoIds] = useState<string[]>([]);
+  const prevTopThreeCryptos = useRef<CurrencyEntity[]>([]);
 
   useEffect(() => {
     const initialValue = portfolio.reduce((acc, coin) => acc + (coin.purchasePrice * (coin.quantity || 0)), 0);
@@ -30,14 +21,21 @@ const Header: React.FC<HeaderProps> = ({ portfolio, onOpenPortfolio, totalPortfo
   }, [portfolio]);
 
   useEffect(() => {
-    if (cryptoRates.length > 0) {
-      const sortedCryptoRates = [...cryptoRates].sort((a, b) => parseFloat(b.priceUsd) - parseFloat(a.priceUsd));
+    if (coins.length > 0) {
+      const sortedCryptoRates = [...coins].sort((a, b) => parseFloat(b.priceUsd) - parseFloat(a.priceUsd));
       const topThree = sortedCryptoRates.slice(0, 3);
       setTopThreeCryptos(topThree);
-    }
-  }, [cryptoRates]);
 
-  const portfolioChange = totalPortfolioValue - initialPortfolioValue;
+      const updatedIds = topThree.filter(crypto => {
+        const existingCrypto = prevTopThreeCryptos.current.find(c => c.id === crypto.id);
+        return existingCrypto && existingCrypto.priceUsd !== crypto.priceUsd;
+      }).map(crypto => crypto.id);
+      setUpdatedCryptoIds(updatedIds);
+      prevTopThreeCryptos.current = topThree;
+    }
+  }, [coins]);
+
+  const portfolioChange = portfolioCostDifference - initialPortfolioValue;
   const portfolioChangePercentage = initialPortfolioValue !== 0 ? ((portfolioChange / initialPortfolioValue) * 100).toFixed(2) : '0.00';
 
   return (
@@ -46,13 +44,19 @@ const Header: React.FC<HeaderProps> = ({ portfolio, onOpenPortfolio, totalPortfo
         <div className="crypto-rates">
           {topThreeCryptos.map(crypto => (
             <div key={crypto.id} className="ticker">
-              <strong>{crypto.name}:</strong> ${crypto.priceUsd}
+              <strong>{crypto.name}:</strong>
+              <span
+                className={`price ${updatedCryptoIds.includes(crypto.id) ? 'updated' : ''}`}
+                onAnimationEnd={() => setUpdatedCryptoIds(prev => prev.filter(id => id !== crypto.id))}
+              >
+                ${crypto.priceUsd}
+              </span>
             </div>
           ))}
         </div>
       </div>
-      <div className="portfolio-value" onClick={onOpenPortfolio}>
-        {totalPortfolioValue.toFixed(2)} USD {portfolioChange >= 0 ? '+' : ''}{portfolioChange.toFixed(2)} ({portfolioChangePercentage}%)
+      <div className="portfolio-value" onClick={handleOpenPortfolio}>
+        {portfolioCostDifference.toFixed(2)} USD {portfolioChange >= 0 ? '+' : ''}{portfolioChange.toFixed(2)} ({portfolioChangePercentage}%)
       </div>
     </div>
   );
